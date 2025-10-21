@@ -310,4 +310,3 @@ fonction factoriel(n) {
 soit resultat = factoriel(5)
 imprimer("5! = ", resultat)
 ```
-```
