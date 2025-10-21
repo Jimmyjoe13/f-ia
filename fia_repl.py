@@ -1,10 +1,15 @@
-# fia_repl.py - Version avec listes et tableaux - CORRIGÉE
+# fia_repl.py - Version avec listes, tableaux, fonctions, portée, et retourner
 import re
 import sys
 import math
 import random
 
 print("🚀 Démarrage de F-IA REPL...")
+
+# Exception spécifique pour gérer le 'retourner'
+class ReturnException(Exception):
+    def __init__(self, value):
+        self.value = value
 
 # ==================== LEXER CORRIGÉ ====================
 class LexerFIA:
@@ -155,7 +160,9 @@ class ParserFIA:
         elif self.current_token[0] == 'POUR':
             return self.parse_for_statement()
         elif self.current_token[0] == 'FONCTION': # Ajout pour la future implémentation
-            return self.parse_function_definition() # À implémenter plus tard
+            return self.parse_function_definition()
+        elif self.current_token[0] == 'RETOURNER':
+            return self.parse_return_statement() # Ajout pour la nouvelle fonctionnalité
         elif self.current_token[0] == 'IDENTIFIANT' and self.peek() and self.peek()[0] == 'PARENTHESE_OUVRANTE':
             return self.parse_function_call()
         else:
@@ -201,6 +208,13 @@ class ParserFIA:
 
         valeur = self.parse_expression()
         return ('ASSIGNMENT', ('VARIABLE', nom_variable), valeur)
+
+    # --- Nouvelle fonction pour le mot-clé 'retourner' ---
+    def parse_return_statement(self):
+        """Parse: retourner expression"""
+        self.advance() # Consommer 'retourner'
+        valeur = self.parse_expression() # L'expression est optionnelle, mais on la parse si présente
+        return ('RETURN', valeur)
 
 
     def parse_declaration(self):
@@ -586,11 +600,11 @@ class ParserFIA:
         
         return ('LIST', elements)
 
-# ==================== ÉVALUATEUR AVEC LISTES ====================
-# (L'évaluateur reste inchangé pour l'instant, mais devra être mis à jour pour gérer les nouvelles structures AST)
+# ==================== ÉVALUATEUR AVEC LISTES ET RETOURNER ====================
 class EvaluateurFIA:
     def __init__(self):
-        self.variables = {}
+        # Utilisation d'une pile de contextes pour la portée des variables
+        self.contextes = [{}]  # Pile de dictionnaires. Le premier est le contexte global.
         self.fonctions_integrees = self.initialiser_fonctions_integrees()
         # Pour stocker les fonctions définies par l'utilisateur
         self.fonctions_definies = {}
@@ -652,6 +666,22 @@ class EvaluateurFIA:
             resultat = self.eval_node(node)
         return resultat
 
+    def _get_variable(self, nom):
+        """Recherche une variable dans la pile des contextes."""
+        for contexte in reversed(self.contextes): # Recherche du plus local au plus global
+            if nom in contexte:
+                return contexte[nom]
+        raise NameError(f"Variable '{nom}' non définie")
+
+    def _set_variable(self, nom, valeur):
+        """Définit une variable dans le contexte local actuel."""
+        if self.contextes: # S'assure qu'il y a au moins un contexte
+            self.contextes[-1][nom] = valeur # Affecte dans le contexte du haut de la pile
+        else:
+            # Cas improbable si la pile est toujours initialisée
+            self.contextes[0][nom] = valeur
+
+
     def eval_node(self, node):
         """Évalue un nœud individuel de l'AST"""
         if not node:
@@ -662,7 +692,7 @@ class EvaluateurFIA:
         if node_type == 'DECLARATION':
             nom = node[1]
             valeur = self.eval_node(node[2]) if node[2] is not None else None
-            self.variables[nom] = valeur
+            self._set_variable(nom, valeur)
             print(f"✅ Variable '{nom}' = {valeur}")
             return valeur
             
@@ -725,6 +755,12 @@ class EvaluateurFIA:
             self.fonctions_definies[nom] = {'params': params, 'corps': corps}
             print(f"✅ Fonction '{nom}' définie avec {len(params)} paramètre(s)")
             return None # Une définition ne retourne pas de valeur
+
+        # --- Gestion du mot-clé 'retourner' ---
+        elif node_type == 'RETURN':
+            valeur = self.eval_node(node[1]) if node[1] is not None else None
+            # Lever une exception pour sortir de la fonction
+            raise ReturnException(valeur)
             
         elif node_type == 'ASSIGNMENT':
             # Gestion des assignations: variable = valeur
@@ -733,7 +769,7 @@ class EvaluateurFIA:
             
             if target[0] == 'VARIABLE':
                 nom_variable = target[1]
-                self.variables[nom_variable] = value
+                self._set_variable(nom_variable, value)
                 print(f"✅ Assignation: {nom_variable} = {value}")
                 return value
             else:
@@ -758,25 +794,25 @@ class EvaluateurFIA:
                      raise TypeError(f"Erreur: la fonction '{nom_fonction}' attend {len(params)} arguments, {len(arguments)} fournis.")
                  
                  # Créer un contexte local pour les paramètres
-                 contexte_local = self.variables.copy() # Copie le contexte global
+                 contexte_local = {}
                  for param, arg in zip(params, arguments):
                      contexte_local[param] = arg
 
                  # Sauvegarder le contexte global
-                 ancien_contexte = self.variables
-                 # Utiliser le contexte local
-                 self.variables = contexte_local
+                 ancien_contexte = self.contextes
+                 # Remplacer la pile par un nouveau contexte local
+                 self.contextes = [contexte_local]
 
                  resultat_fonction = None
-                 for stmt in corps:
-                     resultat_fonction = self.eval_node(stmt)
-                     # Gérer 'retourner' ici si implémenté
-                     # if stmt[0] == 'RETURN':
-                     #     resultat_fonction = self.eval_node(stmt[1])
-                     #     break
-                 
+                 try:
+                     for stmt in corps:
+                         self.eval_node(stmt)
+                 except ReturnException as e:
+                     # Récupérer la valeur de retour si 'retourner' est exécuté
+                     resultat_fonction = e.value
+                 # Si la boucle se termine sans 'retourner', la fonction retourne None
                  # Restaurer le contexte global
-                 self.variables = ancien_contexte
+                 self.contextes = ancien_contexte
                  return resultat_fonction
             else:
                 raise NameError(f"Fonction '{nom_fonction}' non définie")
@@ -843,11 +879,7 @@ class EvaluateurFIA:
             return node[1]
             
         elif node_type == 'VARIABLE':
-            if node[1] in self.variables:
-                valeur = self.variables[node[1]]
-                return valeur
-            else:
-                raise NameError(f"Variable '{node[1]}' non définie")
+            return self._get_variable(node[1]) # Utilisation de la nouvelle méthode
         
         return None
 
@@ -904,7 +936,9 @@ class REPLFIA:
             self.lister_variables()
             return True
         elif ligne == ".reset":
-            self.evaluateur.variables = {}
+            # Réinitialiser les contextes : un contexte global vide
+            self.evaluateur.contextes = [{}]
+            # Réinitialiser les fonctions définies par l'utilisateur
             self.evaluateur.fonctions_definies = {}
             print("🔄 Variables et fonctions réinitialisées")
             return True
@@ -937,14 +971,14 @@ class REPLFIA:
         print("  x = x + 1")
         print("  si (x > 5) { imprimer(\"Grand\") }")
         print("  tant_que (i < 3) { imprimer(i); i = i + 1 }")
-        print("  fonction doubler(n) { retourner n * 2; }") # Exemple futur
+        print("  fonction doubler(n) { retourner n * 2; }") # Exemple avec 'retourner'
 
     def lister_variables(self):
-        if not self.evaluateur.variables:
-            print("📝 Aucune variable")
+        if not self.evaluateur.contextes[0]: # Vérifie le contexte global
+            print("📝 Aucune variable globale")
         else:
-            print("\n📝 Variables:")
-            for nom, valeur in self.evaluateur.variables.items():
+            print("\n📝 Variables globales:")
+            for nom, valeur in self.evaluateur.contextes[0].items(): # Accès au contexte global
                 print(f"  {nom} = {valeur}")
         if not self.evaluateur.fonctions_definies:
             print("📝 Aucune fonction définie")

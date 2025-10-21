@@ -178,7 +178,7 @@ Définit une fonction nommée avec des paramètres optionnels.
 ```f-ia
 fonction nom_fonction(param1, param2, ...) {
     // corps de la fonction
-    // la dernière expression évaluée est la valeur de retour implicite
+    // utilisez 'retourner' pour renvoyer une valeur
 }
 ```
 
@@ -204,7 +204,19 @@ saluer("Bob")
 
 ### Valeur de Retour
 
-Pour le moment, la valeur de retour d'une fonction est la dernière expression évaluée dans son corps. La commande `retourner` n'est pas encore implémentée.
+Utilisez le mot-clé `retourner` dans le corps d'une fonction pour renvoyer une valeur et sortir immédiatement de la fonction. Si `retourner` n'est pas utilisé, la fonction retourne `nul`.
+
+```f-ia
+fonction doubler(nombre) {
+    retourner nombre * 2
+}
+soit resultat = doubler(5)
+imprimer(resultat) // Affiche 10
+```
+
+### Portée des Variables
+
+Les variables déclarées à l'intérieur d'une fonction sont **locales** à cette fonction. Elles ne sont pas accessibles en dehors de celle-ci.
 
 ---
 
@@ -285,14 +297,14 @@ tant_que (i < longueur(liste)) {
 }
 ```
 
-### Exemple 3 : Fonction Personnalisée
+### Exemple 3 : Fonction Personnalisée avec `retourner`
 
 ```f-ia
 fonction factoriel(n) {
     si (n <= 1) {
-        1
+        retourner 1
     } sinon {
-        n * factoriel(n - 1)
+        retourner n * factoriel(n - 1)
     }
 }
 soit resultat = factoriel(5)
