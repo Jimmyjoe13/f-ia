@@ -51,8 +51,8 @@ empiler(pile, "élément")
 ## 📦 Installation
 
 ```bash
-git clone https://github.com/Jimmyjoe13/f-ia-2.git
-cd f-ia-2
+git clone https://github.com/Jimmyjoe13/f-ia.git
+cd f-ia
 pip install -r requirements.txt
 ```
 
