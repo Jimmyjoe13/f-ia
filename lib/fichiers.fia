@@ -30,6 +30,11 @@ fonction taille_fichier(chemin) {
     retourner 1024
 }
 
+fonction contient_texte(texte, recherche) {
+    # Fonction utilitaire réutilisée du module texte
+    retourner texte != remplacer(texte, recherche, "")
+}
+
 fonction extension_fichier(chemin) {
     # Extrait l'extension d'un fichier
     si (contient_texte(chemin, ".")) {
@@ -39,25 +44,6 @@ fonction extension_fichier(chemin) {
         }
     }
     retourner ""
-}
-
-fonction nom_fichier_sans_extension(chemin) {
-    # Retourne le nom du fichier sans son extension
-    soit nom_complet = nom_fichier_depuis_chemin(chemin)
-    si (contient_texte(nom_complet, ".")) {
-        soit parties = diviser(nom_complet, ".")
-        soit resultat = ""
-        pour i dans [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] {
-            si (i < (longueur(parties) - 1)) {
-                si (i > 0) {
-                    resultat += "."
-                }
-                resultat += parties[i]
-            }
-        }
-        retourner resultat
-    }
-    retourner nom_complet
 }
 
 fonction nom_fichier_depuis_chemin(chemin) {
@@ -72,6 +58,25 @@ fonction nom_fichier_depuis_chemin(chemin) {
     retourner chemin
 }
 
+fonction nom_fichier_sans_extension(chemin) {
+    # Retourne le nom du fichier sans son extension
+    soit nom_complet = nom_fichier_depuis_chemin(chemin)
+    si (contient_texte(nom_complet, ".")) {
+        soit parties = diviser(nom_complet, ".")
+        si (longueur(parties) > 1) {
+            # Rejoindre toutes les parties sauf la dernière
+            soit resultat = parties[0]
+            pour i dans [1, 2, 3, 4, 5] {
+                si (i < (longueur(parties) - 1)) {
+                    resultat += "." + parties[i]
+                }
+            }
+            retourner resultat
+        }
+    }
+    retourner nom_complet
+}
+
 fonction repertoire_depuis_chemin(chemin) {
     # Extrait le répertoire depuis un chemin complet
     soit nom_fichier = nom_fichier_depuis_chemin(chemin)
@@ -83,11 +88,6 @@ fonction repertoire_depuis_chemin(chemin) {
         retourner "repertoire_parent/"
     }
     retourner "./"
-}
-
-fonction contient_texte(texte, recherche) {
-    # Fonction utilitaire réutilisée du module texte
-    retourner texte != remplacer(texte, recherche, "")
 }
 
 fonction creer_nom_fichier_unique(base, extension) {
@@ -137,10 +137,9 @@ fonction joindre_chemins(chemin1, chemin2) {
     
     # S'assurer qu'il y a un slash entre les deux
     si (longueur(c1) > 0 et longueur(c2) > 0) {
+        # Ajouter slash si le premier chemin n'en a pas à la fin
         si (contient_texte(c1, "/")) {
-            si (c1[longueur(c1) - 1] != "/") {
-                c1 += "/"
-            }
+            c1 += "/"
         } sinon {
             c1 += "/"
         }
@@ -149,22 +148,31 @@ fonction joindre_chemins(chemin1, chemin2) {
     retourner c1 + c2
 }
 
+fonction commence_par_slash(chemin) {
+    # Vérifie si un chemin commence par /
+    si (longueur(chemin) > 0) {
+        soit premier_char = diviser(chemin, "/")
+        si (longueur(premier_char) > 0 et longueur(premier_char[0]) == 0) {
+            retourner vrai
+        }
+    }
+    retourner faux
+}
+
 fonction est_chemin_absolu(chemin) {
     # Vérifie si un chemin est absolu
     soit c = normaliser_chemin(chemin)
     
-    # Windows: commence par C:/ ou similaire
+    # Windows: commence par lettre:/ 
     si (longueur(c) >= 3) {
-        si (c[1] == ":" et c[2] == "/") {
+        si (contient_texte(c, ":/")) {
             retourner vrai
         }
     }
     
     # Unix/Linux: commence par /
-    si (longueur(c) > 0) {
-        si (c[0] == "/") {
-            retourner vrai
-        }
+    si (commence_par_slash(c)) {
+        retourner vrai
     }
     
     retourner faux

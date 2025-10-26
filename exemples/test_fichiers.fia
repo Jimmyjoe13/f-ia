@@ -1,0 +1,98 @@
+# exemples/test_fichiers.fia
+# Test du module lib/fichiers.fia
+
+importer "lib/fichiers.fia" comme fichiers
+
+imprimer("=== TEST DU MODULE FICHIERS ===")
+imprimer()
+
+# Test d'extraction d'informations de fichier
+soit chemin_test = "C:/Users/Jimmy/Documents/rapport.pdf"
+imprimer("Chemin de test:", chemin_test)
+imprimer("Nom du fichier:", fichiers.nom_fichier_depuis_chemin(chemin_test))
+imprimer("Extension:", fichiers.extension_fichier(chemin_test))
+imprimer("Nom sans extension:", fichiers.nom_fichier_sans_extension(chemin_test))
+imprimer("Répertoire:", fichiers.repertoire_depuis_chemin(chemin_test))
+imprimer()
+
+# Test de normalisation de chemin
+soit chemin_windows = "C:\\Users\\Jimmy\\Documents\\fichier.txt"
+imprimer("Chemin Windows:", chemin_windows)
+imprimer("Normalisé:", fichiers.normaliser_chemin(chemin_windows))
+imprimer()
+
+# Test de validation de noms de fichiers
+imprimer("Tests de validation de noms:")
+imprimer("  'fichier_valide.txt' ->", fichiers.valider_nom_fichier("fichier_valide.txt"))
+imprimer("  'fichier<invalide>.txt' ->", fichiers.valider_nom_fichier("fichier<invalide>.txt"))
+imprimer("  '' ->", fichiers.valider_nom_fichier(""))
+imprimer("  'nom_tres_long.txt' ->", fichiers.valider_nom_fichier("nom_tres_long.txt"))
+imprimer()
+
+# Test de jointure de chemins
+soit base = "/home/user"
+soit fichier = "documents/rapport.pdf"
+imprimer("Jointure de chemins:")
+imprimer("  Base:", base)
+imprimer("  Fichier:", fichier)
+imprimer("  Résultat:", fichiers.joindre_chemins(base, fichier))
+imprimer()
+
+# Test de détection de chemins absolus
+imprimer("Test de chemins absolus:")
+imprimer("  '/home/user/file.txt' ->", fichiers.est_chemin_absolu("/home/user/file.txt"))
+imprimer("  'C:/Windows/file.txt' ->", fichiers.est_chemin_absolu("C:/Windows/file.txt"))
+imprimer("  'relative/path.txt' ->", fichiers.est_chemin_absolu("relative/path.txt"))
+imprimer("  './local.txt' ->", fichiers.est_chemin_absolu("./local.txt"))
+imprimer()
+
+# Test de génération de noms uniques
+soit base_nom = "document"
+soit extension = "txt"
+imprimer("Nom de fichier unique:")
+imprimer("  Base:", base_nom)
+imprimer("  Extension:", extension) 
+imprimer("  Généré:", fichiers.creer_nom_fichier_unique(base_nom, extension))
+imprimer()
+
+# Test de génération de chemin de sauvegarde
+soit nom_base = "projet_important"
+imprimer("Chemin de sauvegarde:")
+imprimer("  Nom de base:", nom_base)
+imprimer("  Chemin généré:", fichiers.generer_chemin_sauvegarde(nom_base))
+imprimer()
+
+# Test d'informations complètes de fichier
+soit fichier_complet = "/var/www/html/index.html"
+imprimer("Informations complètes du fichier:", fichier_complet)
+soit infos = fichiers.info_fichier(fichier_complet)
+imprimer("  - Nom:", infos["nom"])
+imprimer("  - Extension:", infos["extension"])
+imprimer("  - Répertoire:", infos["repertoire"])
+imprimer("  - Nom sans ext:", infos["nom_sans_ext"])
+imprimer("  - Chemin normalisé:", infos["chemin_normalise"])
+imprimer("  - Est absolu:", infos["est_absolu"])
+imprimer("  - Nom valide:", infos["valide"])
+imprimer()
+
+# Tests avec différents types de fichiers
+imprimer("Tests avec différents types de fichiers:")
+soit fichiers_test = ["image.jpg", "document.pdf", "script.py", "archive.tar.gz", "config", ".hidden"]
+
+pour fichier_test dans fichiers_test {
+    imprimer("  Fichier:", fichier_test)
+    imprimer("    Extension:", fichiers.extension_fichier(fichier_test))
+    imprimer("    Sans extension:", fichiers.nom_fichier_sans_extension(fichier_test))
+    imprimer("    Valide:", fichiers.valider_nom_fichier(fichier_test))
+}
+imprimer()
+
+# Test de simulation de fonctions de fichier
+imprimer("Tests de simulation:")
+imprimer("  Fichier existe:", fichiers.fichier_existe("test.txt"))
+imprimer("  Taille fichier:", fichiers.taille_fichier("test.txt"), "octets")
+imprimer("  Écriture réussie:", fichiers.ecrire_fichier_texte("output.txt", "Hello World"))
+imprimer("  Ajout réussi:", fichiers.ajouter_au_fichier("log.txt", "Nouvelle ligne"))
+
+imprimer()
+imprimer("✅ Tests du module fichiers terminés !")
