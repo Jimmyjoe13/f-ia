@@ -1,0 +1,100 @@
+# exemples/test_utils.fia
+# Test du module lib/utils.fia
+
+importer "lib/utils.fia" comme utils
+
+imprimer("=== TEST DU MODULE UTILS ===")
+imprimer()
+
+# Test des fonctions de date et heure
+imprimer("=== DATES ET HEURES ===")
+imprimer("Date actuelle:", utils.date_actuelle())
+imprimer("Heure actuelle:", utils.heure_actuelle())
+imprimer("DateTime complet:", utils.datetime_actuelle())
+imprimer("Date formatée (2025, 12, 25):", utils.formater_date(2025, 12, 25))
+imprimer("Date formatée (2025, 3, 7):", utils.formater_date(2025, 3, 7))
+imprimer("Heure formatée (14, 30, 45):", utils.formater_heure(14, 30, 45))
+imprimer("Heure formatée (9, 5, 3):", utils.formater_heure(9, 5, 3))
+imprimer()
+
+# Test de validation de nombres (version simplifiée)
+imprimer("=== VALIDATION DE NOMBRES ===")
+imprimer("'123' est entier:", utils.est_nombre_entier("123"))
+imprimer("'-456' est entier:", utils.est_nombre_entier("-456"))
+imprimer("'12.34' est entier:", utils.est_nombre_entier("12.34"))
+imprimer("'abc123' est entier:", utils.est_nombre_entier("abc123"))
+imprimer("'12.34' est décimal:", utils.est_nombre_decimal("12.34"))
+imprimer("'-12.34' est décimal:", utils.est_nombre_decimal("-12.34"))
+imprimer("'12.34.56' est décimal:", utils.est_nombre_decimal("12.34.56"))
+imprimer("'abc12.34' est décimal:", utils.est_nombre_decimal("abc12.34"))
+imprimer()
+
+# Test de manipulation de listes
+imprimer("=== MANIPULATION DE LISTES ===")
+soit liste_originale = ["pomme", "banane", "orange", "pomme", "kiwi", "banane"]
+imprimer("Liste originale:", liste_originale)
+
+soit liste_melangee = utils.melanger_liste(liste_originale)
+imprimer("Liste mélangée:", liste_melangee)
+
+soit liste_sans_doublons = utils.dedoublon_liste(liste_originale)
+imprimer("Sans doublons:", liste_sans_doublons)
+
+soit liste_filtree = utils.filtrer_liste(liste_originale, "pomme")
+imprimer("Sans 'pomme':", liste_filtree)
+
+# Test de permutation
+soit test_permutation = ["A", "B", "C", "D"]
+imprimer("Avant permutation:", test_permutation)
+soit test_permute = utils.permuter_elements(test_permutation, 0, 3)
+imprimer("Après permutation (0,3):", test_permute)
+imprimer()
+
+# Test de génération
+imprimer("=== GÉNÉRATION ===")
+imprimer("ID simple:", utils.generer_id_simple())
+imprimer("Mot de passe 8 chars:", utils.generer_mot_de_passe_simple(8))
+imprimer("Mot de passe 12 chars:", utils.generer_mot_de_passe_simple(12))
+imprimer()
+
+# Test de validation
+imprimer("=== VALIDATION ===")
+imprimer("Email 'test@exemple.com':", utils.valider_email_simple("test@exemple.com"))
+imprimer("Email 'invalide@':", utils.valider_email_simple("invalide@"))
+imprimer("Email 'test.exemple.com':", utils.valider_email_simple("test.exemple.com"))
+
+imprimer("URL 'https://www.exemple.com':", utils.valider_url_simple("https://www.exemple.com"))
+imprimer("URL 'http://test.fr':", utils.valider_url_simple("http://test.fr"))
+imprimer("URL 'invalide':", utils.valider_url_simple("invalide"))
+imprimer()
+
+# Test de formatage
+imprimer("=== FORMATAGE ===")
+imprimer("Taille 500 octets:", utils.formater_taille_octets(500))
+imprimer("Taille 1536 octets:", utils.formater_taille_octets(1536))
+imprimer("Taille 2048000 octets:", utils.formater_taille_octets(2048000))
+
+imprimer("Pourcentage 25/100:", utils.formater_pourcentage(25, 100))
+imprimer("Pourcentage 33/150:", utils.formater_pourcentage(33, 150))
+imprimer("Pourcentage 0/100:", utils.formater_pourcentage(0, 100))
+imprimer()
+
+# Test de conversions
+imprimer("=== CONVERSIONS ===")
+imprimer("25°C en Fahrenheit:", utils.convertir_celsius_fahrenheit(25))
+imprimer("77°F en Celsius:", utils.convertir_fahrenheit_celsius(77))
+imprimer("1500 mètres en km:", utils.convertir_metres_kilometres(1500))
+imprimer("2.5 km en mètres:", utils.convertir_kilometres_metres(2.5))
+imprimer()
+
+# Test d'informations système
+imprimer("=== INFORMATIONS SYSTÈME ===")
+soit infos = utils.info_systeme()
+imprimer("OS:", infos["os"])
+imprimer("Version:", infos["version"])
+imprimer("Date:", infos["date"])
+imprimer("Heure:", infos["heure"])
+imprimer("Utilisateur:", infos["utilisateur"])
+imprimer()
+
+imprimer("✅ Tests du module utils terminés !")

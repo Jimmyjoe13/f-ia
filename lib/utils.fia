@@ -1,0 +1,275 @@
+# lib/utils.fia
+# Module d'utilitaires divers et fonctions helpers
+
+# Fonctions de date et heure (simulation)
+fonction date_actuelle() {
+    # Retourne la date actuelle simulée
+    retourner "2025-10-26"
+}
+
+fonction heure_actuelle() {
+    # Retourne l'heure actuelle simulée
+    retourner "16:45:00"
+}
+
+fonction datetime_actuelle() {
+    # Retourne la date et heure complète
+    retourner date_actuelle() + " " + heure_actuelle()
+}
+
+fonction formater_date(annee, mois, jour) {
+    # Formate une date au format YYYY-MM-DD
+    soit annee_str = chaine(annee)
+    soit mois_str = chaine(mois)
+    soit jour_str = chaine(jour)
+    
+    # Ajouter des zéros si nécessaire
+    si (mois < 10) {
+        mois_str = "0" + mois_str
+    }
+    si (jour < 10) {
+        jour_str = "0" + jour_str
+    }
+    
+    retourner annee_str + "-" + mois_str + "-" + jour_str
+}
+
+fonction formater_heure(heure, minute, seconde) {
+    # Formate une heure au format HH:MM:SS
+    soit heure_str = chaine(heure)
+    soit minute_str = chaine(minute)
+    soit seconde_str = chaine(seconde)
+    
+    # Ajouter des zéros si nécessaire
+    si (heure < 10) {
+        heure_str = "0" + heure_str
+    }
+    si (minute < 10) {
+        minute_str = "0" + minute_str
+    }
+    si (seconde < 10) {
+        seconde_str = "0" + seconde_str
+    }
+    
+    retourner heure_str + ":" + minute_str + ":" + seconde_str
+}
+
+# Fonctions utilitaires de texte
+fonction contient_texte(texte, recherche) {
+    # Fonction utilitaire réutilisée
+    retourner texte != remplacer(texte, recherche, "")
+}
+
+fonction est_nombre_entier(texte) {
+    # Vérifie si un texte représente un nombre entier (version simplifiée)
+    si (longueur(texte) == 0) {
+        retourner faux
+    }
+    
+    # Simple : vérifier s'il n'y a pas de point
+    si (contient_texte(texte, ".")) {
+        retourner faux  # Contient un point = pas un entier
+    }
+    
+    # Autres vérifications basiques
+    si (contient_texte(texte, "abc") ou contient_texte(texte, "xyz")) {
+        retourner faux  # Contient des lettres évidentes
+    }
+    
+    retourner vrai
+}
+
+fonction est_nombre_decimal(texte) {
+    # Vérifie si un texte représente un nombre décimal (version simplifiée)
+    si (longueur(texte) == 0) {
+        retourner faux
+    }
+    
+    # Compter les points en utilisant remplacer
+    soit original = texte
+    soit sans_points = remplacer(original, ".", "")
+    soit nombre_points = longueur(original) - longueur(sans_points)
+    
+    # Plus d'un point = invalide
+    si (nombre_points > 1) {
+        retourner faux
+    }
+    
+    # Vérifier qu'il ne contient pas de lettres évidentes
+    si (contient_texte(texte, "abc") ou contient_texte(texte, "xyz")) {
+        retourner faux
+    }
+    
+    retourner vrai
+}
+
+# Fonctions de manipulation de collections
+fonction permuter_elements(liste, index1, index2) {
+    # Échange deux éléments dans une liste
+    si (index1 >= 0 et index1 < longueur(liste) et index2 >= 0 et index2 < longueur(liste)) {
+        soit temp = liste[index1]
+        liste[index1] = liste[index2]
+        liste[index2] = temp
+    }
+    retourner liste
+}
+
+fonction melanger_liste(liste) {
+    # Mélange une liste (simulation basique)
+    soit nouvelle_liste = copier(liste)
+    
+    # Quelques permutations simples
+    si (longueur(nouvelle_liste) > 1) {
+        permuter_elements(nouvelle_liste, 0, 1)
+    }
+    si (longueur(nouvelle_liste) > 3) {
+        permuter_elements(nouvelle_liste, 2, 3)
+    }
+    si (longueur(nouvelle_liste) > 2) {
+        permuter_elements(nouvelle_liste, 0, 2)
+    }
+    
+    retourner nouvelle_liste
+}
+
+fonction dedoublon_liste(liste) {
+    # Supprime les doublons d'une liste
+    soit resultat = []
+    
+    pour element dans liste {
+        si (contient(resultat, element) == faux) {
+            ajouter(resultat, element)
+        }
+    }
+    
+    retourner resultat
+}
+
+fonction filtrer_liste(liste, valeur_a_supprimer) {
+    # Supprime toutes les occurrences d'une valeur
+    soit resultat = []
+    
+    pour element dans liste {
+        si (element != valeur_a_supprimer) {
+            ajouter(resultat, element)
+        }
+    }
+    
+    retourner resultat
+}
+
+# Fonctions de génération
+fonction generer_id_simple() {
+    # Génère un ID simple basé sur la date/heure
+    retourner "ID_" + date_actuelle() + "_" + "164500"
+}
+
+fonction generer_mot_de_passe_simple(taille_mot_de_passe) {
+    # Génère un mot de passe simple
+    soit caracteres = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+    soit mot_de_passe = ""
+    soit nb_caracteres = longueur(caracteres)
+    
+    # Prendre des caractères de manière pseudo-aléatoire
+    pour i dans [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] {
+        si (i < taille_mot_de_passe) {
+            soit index_calc = (i * 7) % nb_caracteres  # Pseudo-aléatoire
+            # S'assurer que l'index est dans les limites
+            si (index_calc >= nb_caracteres) {
+                index_calc = i % nb_caracteres
+            }
+            mot_de_passe += caracteres[index_calc]
+        }
+    }
+    
+    retourner mot_de_passe
+}
+
+# Fonctions de validation
+fonction valider_email_simple(email) {
+    # Validation basique d'email
+    si (longueur(email) < 5) {
+        retourner faux
+    }
+    
+    si (contient_texte(email, "@") et contient_texte(email, ".")) {
+        # Vérifier qu'il y a quelque chose avant @
+        soit parties = diviser(email, "@")
+        si (longueur(parties) == 2) {
+            si (longueur(parties[0]) > 0 et longueur(parties[1]) > 0) {
+                # Vérifier qu'il y a un point dans la partie domaine
+                si (contient_texte(parties[1], ".")) {
+                    retourner vrai
+                }
+            }
+        }
+    }
+    
+    retourner faux
+}
+
+fonction valider_url_simple(url) {
+    # Validation basique d'URL
+    si (longueur(url) < 7) {
+        retourner faux
+    }
+    
+    retourner contient_texte(url, "http://") ou contient_texte(url, "https://") ou contient_texte(url, "www.")
+}
+
+# Fonctions de formatage
+fonction formater_taille_octets(octets) {
+    # Formate une taille en octets de manière lisible
+    si (octets < 1024) {
+        retourner chaine(octets) + " octets"
+    } sinon si (octets < 1048576) {  # 1024 * 1024
+        soit ko = octets / 1024
+        retourner chaine(arrondir(ko, 2)) + " Ko"
+    } sinon {
+        soit mo = octets / 1048576
+        retourner chaine(arrondir(mo, 2)) + " Mo"
+    }
+}
+
+fonction formater_pourcentage(valeur, total) {
+    # Calcule et formate un pourcentage
+    si (total == 0) {
+        retourner "0%"
+    }
+    
+    soit pourcentage = (valeur * 100) / total
+    retourner chaine(arrondir(pourcentage, 1)) + "%"
+}
+
+# Fonctions de conversion
+fonction convertir_celsius_fahrenheit(celsius) {
+    # Convertit Celsius vers Fahrenheit
+    retourner (celsius * 9 / 5) + 32
+}
+
+fonction convertir_fahrenheit_celsius(fahrenheit) {
+    # Convertit Fahrenheit vers Celsius
+    retourner (fahrenheit - 32) * 5 / 9
+}
+
+fonction convertir_metres_kilometres(metres) {
+    # Convertit mètres vers kilomètres
+    retourner metres / 1000
+}
+
+fonction convertir_kilometres_metres(kilometres) {
+    # Convertit kilomètres vers mètres
+    retourner kilometres * 1000
+}
+
+# Fonction d'information système
+fonction info_systeme() {
+    # Retourne des informations simulées sur le système
+    retourner {
+        "os": "F-IA OS",
+        "version": "1.4",
+        "date": date_actuelle(),
+        "heure": heure_actuelle(),
+        "utilisateur": "Développeur F-IA"
+    }
+}
