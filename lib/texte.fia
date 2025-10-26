@@ -1,0 +1,155 @@
+# lib/texte.fia
+# Module de manipulation basique des chaînes de caractères
+
+# Fonctions de manipulation de texte
+fonction majuscules(texte) {
+    retourner majuscule(texte)
+}
+
+fonction minuscules(texte) {
+    retourner minuscule(texte)
+}
+
+fonction compter_mots(texte) {
+    soit mots = diviser(texte, " ")
+    soit compteur = 0
+    pour mot dans mots {
+        si (longueur(mot) > 0) {
+            compteur += 1
+        }
+    }
+    retourner compteur
+}
+
+fonction nettoyer_espaces(texte) {
+    soit resultat = texte
+    # Répéter plusieurs fois pour enlever tous les espaces multiples
+    resultat = remplacer(resultat, "  ", " ")
+    resultat = remplacer(resultat, "  ", " ")
+    resultat = remplacer(resultat, "  ", " ")
+    resultat = remplacer(resultat, "  ", " ")
+    resultat = remplacer(resultat, "  ", " ")
+    retourner resultat
+}
+
+fonction contient_texte(texte, recherche) {
+    # Fonction personnalisée pour vérifier si une chaîne contient un sous-texte
+    # En utilisant remplacer : si le texte change, c'est que ça contenait la recherche
+    retourner texte != remplacer(texte, recherche, "")
+}
+
+fonction est_email(texte) {
+    retourner contient_texte(texte, "@") et contient_texte(texte, ".")
+}
+
+fonction est_url(texte) {
+    retourner contient_texte(texte, "http://") ou contient_texte(texte, "https://") ou contient_texte(texte, "www.")
+}
+
+fonction repeter(texte, fois) {
+    soit resultat = ""
+    soit compteur = 0
+    
+    # Boucle manuelle avec liste fixe
+    pour i dans [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20] {
+        si (compteur < fois) {
+            resultat += texte
+            compteur += 1
+        }
+    }
+    retourner resultat
+}
+
+fonction generer_slug(texte) {
+    soit resultat = minuscule(texte)
+    resultat = remplacer(resultat, " ", "-")
+    resultat = remplacer(resultat, "à", "a")
+    resultat = remplacer(resultat, "é", "e")
+    resultat = remplacer(resultat, "è", "e")
+    resultat = remplacer(resultat, "ê", "e")
+    resultat = remplacer(resultat, "ç", "c")
+    resultat = remplacer(resultat, "ù", "u")
+    resultat = remplacer(resultat, "ô", "o")
+    resultat = remplacer(resultat, "î", "i")
+    resultat = remplacer(resultat, "û", "u")
+    resultat = remplacer(resultat, "ü", "u")
+    resultat = remplacer(resultat, "ï", "i")
+    resultat = remplacer(resultat, "ë", "e")
+    resultat = remplacer(resultat, "ÿ", "y")
+    # Supprimer caractères spéciaux courants
+    resultat = remplacer(resultat, "!", "")
+    resultat = remplacer(resultat, "?", "")
+    resultat = remplacer(resultat, ".", "")
+    resultat = remplacer(resultat, ",", "")
+    resultat = remplacer(resultat, ";", "")
+    resultat = remplacer(resultat, ":", "")
+    resultat = remplacer(resultat, "'", "")
+    resultat = remplacer(resultat, '"', "")
+    retourner resultat
+}
+
+fonction centrer_basique(texte, largeur) {
+    soit espaces_total = largeur - longueur(texte)
+    si (espaces_total <= 0) {
+        retourner texte
+    }
+    soit espaces_gauche = espaces_total / 2
+    retourner repeter(" ", espaces_gauche) + texte
+}
+
+fonction formater_nom_propre(prenom, nom) {
+    # Fonction utilitaire qui combine prénom et nom
+    retourner majuscule(prenom) + " " + majuscule(nom)
+}
+
+fonction compter_caracteres_specifiques(texte, caractere_cible) {
+    # Compte les occurrences d'un caractère spécifique
+    soit original = texte
+    soit sans_caractere = remplacer(texte, caractere_cible, "")
+    retourner longueur(original) - longueur(sans_caractere)
+}
+
+fonction extraire_domaine_email(email) {
+    # Extrait le domaine d'une adresse email
+    si (contient_texte(email, "@")) {
+        soit parties = diviser(email, "@")
+        si (longueur(parties) >= 2) {
+            retourner parties[1]
+        }
+    }
+    retourner ""
+}
+
+fonction remplacer_accents_basiques(texte) {
+    # Fonction pour remplacer les accents courants
+    soit resultat = texte
+    resultat = remplacer(resultat, "à", "a")
+    resultat = remplacer(resultat, "â", "a")
+    resultat = remplacer(resultat, "ä", "a")
+    resultat = remplacer(resultat, "é", "e")
+    resultat = remplacer(resultat, "è", "e")
+    resultat = remplacer(resultat, "ê", "e")
+    resultat = remplacer(resultat, "ë", "e")
+    resultat = remplacer(resultat, "î", "i")
+    resultat = remplacer(resultat, "ï", "i")
+    resultat = remplacer(resultat, "ô", "o")
+    resultat = remplacer(resultat, "ö", "o")
+    resultat = remplacer(resultat, "ù", "u")
+    resultat = remplacer(resultat, "û", "u")
+    resultat = remplacer(resultat, "ü", "u")
+    resultat = remplacer(resultat, "ç", "c")
+    resultat = remplacer(resultat, "ÿ", "y")
+    retourner resultat
+}
+
+fonction statistiques_texte(texte) {
+    # Retourne un dictionnaire avec des statistiques sur le texte
+    soit stats = {
+        "longueur": longueur(texte),
+        "mots": compter_mots(texte),
+        "espaces": compter_caracteres_specifiques(texte, " "),
+        "points": compter_caracteres_specifiques(texte, "."),
+        "virgules": compter_caracteres_specifiques(texte, ",")
+    }
+    retourner stats
+}

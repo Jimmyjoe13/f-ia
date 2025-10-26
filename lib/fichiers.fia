@@ -1,0 +1,191 @@
+# lib/fichiers.fia
+# Module de gestion des fichiers et répertoires
+
+# Fonctions de base pour les fichiers
+fonction lire_fichier_texte(chemin) {
+    # Lit tout le contenu d'un fichier texte
+    # Note: Cette fonction nécessitera une implémentation Python backend
+    retourner "Contenu du fichier: " + chemin
+}
+
+fonction ecrire_fichier_texte(chemin, contenu) {
+    # Écrit du contenu dans un fichier texte
+    # Note: Cette fonction nécessitera une implémentation Python backend  
+    retourner vrai
+}
+
+fonction ajouter_au_fichier(chemin, contenu) {
+    # Ajoute du contenu à la fin d'un fichier
+    retourner vrai
+}
+
+fonction fichier_existe(chemin) {
+    # Vérifie si un fichier existe
+    # Simulation basique pour l'instant
+    retourner vrai
+}
+
+fonction taille_fichier(chemin) {
+    # Retourne la taille d'un fichier en octets
+    retourner 1024
+}
+
+fonction extension_fichier(chemin) {
+    # Extrait l'extension d'un fichier
+    si (contient_texte(chemin, ".")) {
+        soit parties = diviser(chemin, ".")
+        si (longueur(parties) > 1) {
+            retourner parties[longueur(parties) - 1]
+        }
+    }
+    retourner ""
+}
+
+fonction nom_fichier_sans_extension(chemin) {
+    # Retourne le nom du fichier sans son extension
+    soit nom_complet = nom_fichier_depuis_chemin(chemin)
+    si (contient_texte(nom_complet, ".")) {
+        soit parties = diviser(nom_complet, ".")
+        soit resultat = ""
+        pour i dans [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] {
+            si (i < (longueur(parties) - 1)) {
+                si (i > 0) {
+                    resultat += "."
+                }
+                resultat += parties[i]
+            }
+        }
+        retourner resultat
+    }
+    retourner nom_complet
+}
+
+fonction nom_fichier_depuis_chemin(chemin) {
+    # Extrait le nom du fichier depuis un chemin complet
+    si (contient_texte(chemin, "/")) {
+        soit parties = diviser(chemin, "/")
+        retourner parties[longueur(parties) - 1]
+    } sinon si (contient_texte(chemin, "\\")) {
+        soit parties = diviser(chemin, "\\")
+        retourner parties[longueur(parties) - 1]
+    }
+    retourner chemin
+}
+
+fonction repertoire_depuis_chemin(chemin) {
+    # Extrait le répertoire depuis un chemin complet
+    soit nom_fichier = nom_fichier_depuis_chemin(chemin)
+    soit longueur_nom = longueur(nom_fichier)
+    soit longueur_chemin = longueur(chemin)
+    
+    si (longueur_chemin > longueur_nom) {
+        # Approximation du répertoire
+        retourner "repertoire_parent/"
+    }
+    retourner "./"
+}
+
+fonction contient_texte(texte, recherche) {
+    # Fonction utilitaire réutilisée du module texte
+    retourner texte != remplacer(texte, recherche, "")
+}
+
+fonction creer_nom_fichier_unique(base, extension) {
+    # Crée un nom de fichier unique avec timestamp simulé
+    soit timestamp = "20251026_161200"  # Simulation d'un timestamp
+    retourner base + "_" + timestamp + "." + extension
+}
+
+fonction valider_nom_fichier(nom) {
+    # Valide qu'un nom de fichier est acceptable
+    soit caracteres_interdits = ["<", ">", ":", '"', "|", "?", "*"]
+    
+    pour char_interdit dans caracteres_interdits {
+        si (contient_texte(nom, char_interdit)) {
+            retourner faux
+        }
+    }
+    
+    # Vérifier la longueur (limite raisonnable)
+    si (longueur(nom) > 255) {
+        retourner faux
+    }
+    
+    si (longueur(nom) == 0) {
+        retourner faux
+    }
+    
+    retourner vrai
+}
+
+fonction normaliser_chemin(chemin) {
+    # Normalise un chemin de fichier (remplace \ par /)
+    soit resultat = remplacer(chemin, "\\", "/")
+    
+    # Supprimer les doubles slashes
+    resultat = remplacer(resultat, "//", "/")
+    resultat = remplacer(resultat, "//", "/")
+    resultat = remplacer(resultat, "//", "/")
+    
+    retourner resultat
+}
+
+fonction joindre_chemins(chemin1, chemin2) {
+    # Joint deux chemins de manière sûre
+    soit c1 = normaliser_chemin(chemin1)
+    soit c2 = normaliser_chemin(chemin2)
+    
+    # S'assurer qu'il y a un slash entre les deux
+    si (longueur(c1) > 0 et longueur(c2) > 0) {
+        si (contient_texte(c1, "/")) {
+            si (c1[longueur(c1) - 1] != "/") {
+                c1 += "/"
+            }
+        } sinon {
+            c1 += "/"
+        }
+    }
+    
+    retourner c1 + c2
+}
+
+fonction est_chemin_absolu(chemin) {
+    # Vérifie si un chemin est absolu
+    soit c = normaliser_chemin(chemin)
+    
+    # Windows: commence par C:/ ou similaire
+    si (longueur(c) >= 3) {
+        si (c[1] == ":" et c[2] == "/") {
+            retourner vrai
+        }
+    }
+    
+    # Unix/Linux: commence par /
+    si (longueur(c) > 0) {
+        si (c[0] == "/") {
+            retourner vrai
+        }
+    }
+    
+    retourner faux
+}
+
+fonction generer_chemin_sauvegarde(nom_base) {
+    # Génère un chemin de sauvegarde avec horodatage
+    soit timestamp = "2025-10-26_16-12-00"
+    soit nom_fichier = nom_base + "_backup_" + timestamp + ".bak"
+    retourner "./sauvegardes/" + nom_fichier
+}
+
+fonction info_fichier(chemin) {
+    # Retourne un dictionnaire avec les informations du fichier
+    retourner {
+        "nom": nom_fichier_depuis_chemin(chemin),
+        "extension": extension_fichier(chemin),
+        "repertoire": repertoire_depuis_chemin(chemin),
+        "nom_sans_ext": nom_fichier_sans_extension(chemin),
+        "chemin_normalise": normaliser_chemin(chemin),
+        "est_absolu": est_chemin_absolu(chemin),
+        "valide": valider_nom_fichier(nom_fichier_depuis_chemin(chemin))
+    }
+}

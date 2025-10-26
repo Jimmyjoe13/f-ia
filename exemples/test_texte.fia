@@ -1,0 +1,74 @@
+# exemples/test_texte.fia
+# Test du module lib/texte.fia
+
+importer "lib/texte.fia" comme texte
+
+imprimer("=== TEST DU MODULE TEXTE ===")
+imprimer()
+
+# Test des conversions de casse
+soit phrase = "bonjour le monde"
+imprimer("Phrase originale:", phrase)
+imprimer("Majuscules:", texte.majuscules(phrase))
+imprimer("Minuscules:", texte.minuscules(phrase))
+imprimer()
+
+# Test de comptage
+soit texte_exemple = "Le langage F-IA est vraiment génial"
+imprimer("Texte d'exemple:", texte_exemple)
+imprimer("Nombre de mots:", texte.compter_mots(texte_exemple))
+imprimer()
+
+# Test de nettoyage
+soit texte_sale = "Texte    avec     beaucoup    d'espaces"
+imprimer("Texte sale:", "'" + texte_sale + "'")
+imprimer("Texte nettoyé:", "'" + texte.nettoyer_espaces(texte_sale) + "'")
+imprimer()
+
+# Test de validation
+soit email = "utilisateur@exemple.fr"
+soit url = "https://github.com/test"
+
+imprimer("Email test:", email, "->", texte.est_email(email))
+imprimer("URL test:", url, "->", texte.est_url(url))
+imprimer()
+
+# Test de génération de slug
+soit titre_article = "Mon Premier Article en Français!"
+imprimer("Titre original:", titre_article)
+imprimer("Slug généré:", texte.generer_slug(titre_article))
+imprimer()
+
+# Test de répétition
+imprimer("Répétition (3x):", texte.repeter("Hi! ", 3))
+imprimer()
+
+# Test de comptage de caractères
+imprimer("Nombre de 'a' dans 'banana':", texte.compter_caracteres_specifiques("banana", "a"))
+imprimer()
+
+# Test d'extraction de domaine
+imprimer("Domaine de l'email:", texte.extraire_domaine_email("test@gmail.com"))
+imprimer()
+
+# Test de formatage de nom
+imprimer("Nom formaté:", texte.formater_nom_propre("jean", "dupont"))
+imprimer()
+
+# Test de remplacement d'accents
+soit texte_accents = "café français avec des accents éèàù"
+imprimer("Texte avec accents:", texte_accents)
+imprimer("Sans accents:", texte.remplacer_accents_basiques(texte_accents))
+imprimer()
+
+# Test de statistiques
+soit stats = texte.statistiques_texte("Bonjour, comment allez-vous ? Très bien merci.")
+imprimer("Statistiques du texte:")
+imprimer("  - Longueur:", stats["longueur"])
+imprimer("  - Mots:", stats["mots"])
+imprimer("  - Espaces:", stats["espaces"])
+imprimer("  - Points:", stats["points"])
+imprimer("  - Virgules:", stats["virgules"])
+
+imprimer()
+imprimer("✅ Tests du module texte terminés !")
