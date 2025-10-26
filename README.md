@@ -2,22 +2,26 @@
 
 **F-IA** est un langage de programmation en français spécialement conçu pour l'apprentissage et le développement d'applications d'intelligence artificielle.
 
-## 🎉 **NOUVEAUTÉ MAJEURE v1.4 : SYSTÈME DE MODULES !**
+## 🎉 **NOUVEAUTÉ MAJEURE v1.5 : ÉCOSYSTÈME DE MODULES COMPLET !**
 
-F-IA dispose maintenant d'un **système de modules complet et robuste** qui permet la réutilisation de code et l'organisation en projets multi-fichiers !
+F-IA dispose maintenant d'un **écosystème de modules complet** avec **6 modules intégrés** qui permettent la création d'applications réelles multi-fichiers !
 
 ### 📦 **Syntaxe des modules**
 
 ```fia
 # Import avec alias
-importer "lib/math.fia" comme math
-imprimer("PI =", math.PI)
-imprimer("Carré de 5 =", math.carre(5))
+importer "lib/texte.fia" comme texte
+importer "lib/fichiers.fia" comme fichiers
+importer "lib/utils.fia" comme utils
+
+# Utilisation des modules
+soit slug = texte.generer_slug("Mon Article Français !")
+soit infos = fichiers.info_fichier("/home/user/document.pdf")
+soit date = utils.formater_date(2025, 10, 26)
 
 # Import sélectif
-depuis "lib/collections.fia" importer creer_pile, empiler, depiler
-soit pile = creer_pile()
-empiler(pile, "élément")
+depuis "lib/math.fia" importer PI, carre, racine_carree
+imprimer("Aire du cercle:", PI * carre(5))
 ```
 
 ### 🏗️ **Fonctionnalités du système de modules**
@@ -32,13 +36,13 @@ empiler(pile, "élément")
 ## 🌟 Caractéristiques
 
 - **Syntaxe française** intuitive et accessible
-- **🆕 Système de modules** complet avec import/export
+- **🆕 Écosystème de modules** complet avec 6 modules intégrés
 - **Support des caractères accentués** (é, è, à, ç, etc.)
 - **Dictionnaires natifs** avec accès par clé
 - **Pipeline IA complet** intégré
 - **REPL interactif** avec debug détaillé
 - **Gestion d'erreurs avancée** avec localisation ligne/colonne
-- **35+ fonctions intégrées** pour manipulation de données
+- **50+ fonctions intégrées** pour manipulation de données
 - **🔥 IA générative intégrée** - OpenAI, DeepSeek
 - **🆕 Chatbot conversationnel** - Exemples complets inclus
 - **🆕 Support "sinon si"** - Syntaxe conditionnelle enrichie
@@ -82,26 +86,104 @@ python main.py
 python main.py mon_script.fia
 ```
 
-### 📦 Démo du système de modules
+### 📦 Tests des modules
 ```bash
+# Tester tous les modules
 python main.py exemples/test_modules.fia
+python main.py exemples/test_texte.fia
+python main.py exemples/test_fichiers.fia
+python main.py exemples/test_utils.fia
+
+# Démonstration complète
 python main.py exemples/demo_complete.fia
+python main.py exemples/chatbot_ia_avance.fia
 ```
 
-## 📚 **Modules disponibles**
+## 📚 **Modules intégrés**
 
-### `lib/math.fia` - Module mathématique
+### 📝 **`lib/texte.fia`** - Manipulation de chaînes **[NOUVEAU]**
+```fia
+importer "lib/texte.fia" comme texte
+
+# Conversions de casse
+imprimer(texte.majuscules("bonjour"))  # "BONJOUR"
+imprimer(texte.titre("mon article"))   # "Mon Article"
+
+# Nettoyage et validation
+imprimer(texte.nettoyer_espaces("texte   avec   espaces"))
+imprimer(texte.est_email("test@exemple.fr"))  # True
+imprimer(texte.est_url("https://github.com"))  # True
+
+# Génération de slugs
+imprimer(texte.generer_slug("Mon Article Français!"))  # "mon-article-francais"
+
+# Statistiques
+soit stats = texte.statistiques_texte("Bonjour, comment allez-vous ?")
+imprimer("Mots:", stats["mots"], "Longueur:", stats["longueur"])
+```
+
+### 📁 **`lib/fichiers.fia`** - Gestion de fichiers **[NOUVEAU]**
+```fia
+importer "lib/fichiers.fia" comme fichiers
+
+# Extraction d'informations
+soit infos = fichiers.info_fichier("/home/user/document.pdf")
+imprimer("Nom:", infos["nom"])                    # "document.pdf"
+imprimer("Extension:", infos["extension"])         # "pdf"
+imprimer("Sans extension:", infos["nom_sans_ext"]) # "document"
+
+# Gestion des chemins
+soit chemin = fichiers.joindre_chemins("/home/user", "documents/fichier.txt")
+imprimer("Chemin joint:", chemin)  # "/home/user/documents/fichier.txt"
+
+soit normalise = fichiers.normaliser_chemin("C:\\Users\\Jimmy\\file.txt")
+imprimer("Normalisé:", normalise)  # "C:/Users/Jimmy/file.txt"
+
+# Validation et génération
+imprimer("Nom valide:", fichiers.valider_nom_fichier("document.pdf"))  # True
+soit unique = fichiers.creer_nom_fichier_unique("backup", "zip")
+imprimer("Nom unique:", unique)  # "backup_20251026_161200.zip"
+```
+
+### 🛠️ **`lib/utils.fia`** - Utilitaires divers **[NOUVEAU]**
+```fia
+importer "lib/utils.fia" comme utils
+
+# Dates et heures
+imprimer("Date actuelle:", utils.date_actuelle())  # "2025-10-26"
+imprimer("Heure actuelle:", utils.heure_actuelle())  # "16:45:00"
+soit date_formatee = utils.formater_date(2025, 12, 25)  # "2025-12-25"
+
+# Validation avancée
+imprimer("Est entier:", utils.est_nombre_entier("123"))      # True
+imprimer("Est décimal:", utils.est_nombre_decimal("12.34"))  # True
+imprimer("Email valide:", utils.valider_email_simple("test@exemple.fr"))
+
+# Formatage utile
+imprimer("Taille:", utils.formater_taille_octets(1536))      # "1.5 Ko"
+imprimer("Pourcentage:", utils.formater_pourcentage(25, 100)) # "25.0%"
+
+# Conversions pratiques
+imprimer("°F:", utils.convertir_celsius_fahrenheit(25))  # 77.0
+imprimer("km:", utils.convertir_metres_kilometres(1500)) # 1.5
+
+# Génération et manipulation
+soit mdp = utils.generer_mot_de_passe_simple(8)
+soit liste_unique = utils.dedoublon_liste(["a", "b", "a", "c"])
+```
+
+### 🔢 **`lib/math.fia`** - Fonctions mathématiques
 ```fia
 importer "lib/math.fia" comme math
 
-imprimer("PI =", math.PI)                    # 3.14159...
-imprimer("Carré de 7 =", math.carre(7))     # 49
+imprimer("PI =", math.PI)                           # 3.14159...
+imprimer("Carré de 7 =", math.carre(7))            # 49
 imprimer("Racine de 16 =", math.racine_carree(16))  # 4.0
 imprimer("Factorielle de 5 =", math.factorielle(5)) # 120
 imprimer("Max de 10 et 20 =", math.maximum(10, 20)) # 20
 ```
 
-### `lib/collections.fia` - Structures de données
+### 🗂️ **`lib/collections.fia`** - Structures de données
 ```fia
 depuis "lib/collections.fia" importer creer_pile, empiler, depiler
 
@@ -152,8 +234,8 @@ soit config = {"ville": "Paris", "pays": "France"}
 ### Modules et imports
 ```fia
 # Import complet avec alias
-importer "lib/math.fia" comme math
-soit resultat = math.carre(5)
+importer "lib/texte.fia" comme texte
+soit slug = texte.generer_slug("Mon Titre")
 
 # Import sélectif
 depuis "lib/utils.fia" importer formater_date, valider_email
@@ -227,24 +309,53 @@ imprimer(booleen("vrai"))    # vrai
 
 ## 🎯 Exemples d'utilisation
 
-### Projet multi-modules
+### Application complète multi-modules
 ```fia
-# main.fia
-importer "lib/math.fia" comme math
+# app_blog.fia - Générateur d'articles de blog
+importer "lib/texte.fia" comme texte
+importer "lib/fichiers.fia" comme fichiers
 importer "lib/utils.fia" comme utils
 
-fonction calculer_statistiques(donnees) {
-    soit moyenne = math.somme(donnees) / longueur(donnees)
-    soit rapport = {
-        "moyenne": math.arrondir(moyenne, 2),
-        "total": math.somme(donnees),
-        "date": utils.date_actuelle()
+fonction generer_article(titre, contenu, auteur) {
+    # Générer slug pour URL
+    soit slug = texte.generer_slug(titre)
+    
+    # Créer métadonnées
+    soit metadata = {
+        "titre": titre,
+        "slug": slug,
+        "auteur": auteur,
+        "date": utils.date_actuelle(),
+        "mots": texte.compter_mots(contenu),
+        "taille": utils.formater_taille_octets(longueur(contenu))
     }
-    retourner rapport
+    
+    # Générer nom de fichier unique
+    soit nom_fichier = fichiers.creer_nom_fichier_unique(slug, "md")
+    
+    # Créer contenu Markdown
+    soit markdown = "# " + titre + "\n\n"
+    markdown += "*Par " + auteur + " - " + metadata["date"] + "*\n\n"
+    markdown += contenu
+    
+    retourner {
+        "fichier": nom_fichier,
+        "contenu": markdown,
+        "metadata": metadata
+    }
 }
 
-soit resultats = calculer_statistiques([10, 15, 8, 20, 12])
-utils.sauvegarder_json("rapport.json", resultats)
+# Utilisation
+soit article = generer_article(
+    "Mon Premier Article en F-IA",
+    "F-IA est un langage révolutionnaire...",
+    "Développeur F-IA"
+)
+
+imprimer("Article créé:")
+imprimer("- Fichier:", article["fichier"])
+imprimer("- Mots:", article["metadata"]["mots"])
+imprimer("- Taille:", article["metadata"]["taille"])
 ```
 
 ## 🗺️ Roadmap
@@ -256,17 +367,17 @@ utils.sauvegarder_json("rapport.json", resultats)
 - ✅ Détection des cycles
 - ✅ Modules de base (math, collections)
 
-### 🔄 **Phase 1.5 EN COURS - Écosystème de modules**
-- 🔄 `lib/texte.fia` - Manipulation avancée de chaînes
-- 🔄 `lib/fichiers.fia` - Lecture/écriture de fichiers
-- 🔄 `lib/web.fia` - Requêtes HTTP simples
-- 🔄 `lib/utils.fia` - Utilitaires divers
+### ✅ **Phase 1.5 TERMINÉE - Écosystème de modules**
+- ✅ `lib/texte.fia` - Manipulation avancée de chaînes
+- ✅ `lib/fichiers.fia` - Gestion de fichiers et chemins
+- ✅ `lib/utils.fia` - Utilitaires divers et conversions
+- ✅ 6 modules complets avec +50 fonctions
 
-### 📋 **Phase 2 - Syntaxe cohérente**
-- Standardisation des règles syntaxiques
-- Messages d'erreur améliorés
-- Tests automatisés du langage
-- Documentation interactive
+### 🔄 **Phase 2 EN COURS - Extensions avancées**
+- 🔄 `lib/web.fia` - Requêtes HTTP et APIs
+- 🔄 Amélioration des messages d'erreur
+- 🔄 Tests automatisés du langage
+- 🔄 Documentation interactive
 
 ### 🤖 **Phase 3 - Vraie intégration IA**
 - Remplacement des simulations par scikit-learn
@@ -282,14 +393,16 @@ utils.sauvegarder_json("rapport.json", resultats)
 
 ## 💡 Applications réalisables
 
-Avec le système de modules, F-IA permet maintenant de créer :
+Avec l'écosystème de modules complet, F-IA permet maintenant de créer :
 
 - **🤖 Chatbots intelligents** avec IA générative
-- **📊 Applications d'analyse de données** 
-- **🌐 Scripts d'automatisation web**
-- **📁 Outils de traitement de fichiers**
-- **🔬 Projets éducatifs en IA**
-- **📱 Prototypes d'applications**
+- **📊 Applications d'analyse de données** avec validation et formatage
+- **🌐 Scripts d'automatisation web** avec gestion de fichiers
+- **📁 Outils de traitement de fichiers** avec manipulation de texte
+- **🔬 Projets éducatifs en IA** avec modules pédagogiques
+- **📱 Prototypes d'applications** avec écosystème complet
+- **✍️ Générateurs de contenu** avec IA et formatage
+- **🔧 Utilitaires système** avec validation et conversions
 
 ## 📞 Support et Contribution
 
@@ -299,4 +412,4 @@ Avec le système de modules, F-IA permet maintenant de créer :
 
 ---
 
-**F-IA v1.4** - Le premier langage de programmation français avec système de modules et IA native ! 🚀🇫🇷
+**F-IA v1.5** - Le premier langage de programmation français avec écosystème de modules complet et IA native ! 🚀🇫🇷
