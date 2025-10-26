@@ -293,7 +293,7 @@ Avec le système de modules, F-IA permet maintenant de créer :
 
 ## 📞 Support et Contribution
 
-- **Repository**: [https://github.com/Jimmyjoe13/f-ia-2](https://github.com/Jimmyjoe13/f-ia-2)
+- **Repository**: [https://github.com/Jimmyjoe13/f-ia](https://github.com/Jimmyjoe13/f-ia)
 - **Issues**: Signalez les bugs et demandes de fonctionnalités
 - **Pull Requests**: Contributions bienvenues !
 
