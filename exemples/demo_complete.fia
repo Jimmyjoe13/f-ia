@@ -1,0 +1,92 @@
+# exemples/demo_complete.fia
+# Démonstration complète du système de modules F-IA
+
+imprimer("🚀 === DÉMONSTRATION F-IA v1.3 ===")
+imprimer("Système de modules activé!\n")
+
+# === IMPORT DE MODULES ===
+imprimer("📦 Chargement des modules...")
+importer "lib/math.fia" comme math
+depuis "lib/collections.fia" importer creer_pile, empiler, depiler
+
+# === UTILISATION DU MODULE MATH ===
+imprimer("\n🔢 === MODULE MATHÉMATIQUE ===")
+soit x = 10
+soit y = 3
+
+imprimer("x =", x, ", y =", y)
+imprimer("x² =", math.carre(x))
+imprimer("y³ =", math.cube(y))
+imprimer("√x =", math.racine_carree(x))
+imprimer("x! =", math.factorielle(5))  # Factorielle de 5, pas 10 (trop grand)
+imprimer("max(x,y) =", math.maximum(x, y))
+imprimer("PI =", math.PI)
+
+# === UTILISATION DU MODULE COLLECTIONS ===
+imprimer("\n📚 === MODULE COLLECTIONS ===")
+soit taches = creer_pile()
+
+imprimer("Ajout de tâches à faire:")
+empiler(taches, "Réviser F-IA")
+empiler(taches, "Tester les modules")
+empiler(taches, "Écrire documentation")
+
+imprimer("Pile des tâches:", taches)
+
+imprimer("\nExécution des tâches:")
+tant_que (longueur(taches) > 0) {
+    soit tache = depiler(taches)
+    imprimer("✅ Terminé:", tache)
+}
+imprimer("Toutes les tâches terminées!")
+
+# === COMBINAISON DE PLUSIEURS MODULES ===
+imprimer("\n🎯 === EXEMPLE AVANCÉ ===")
+soit donnees = [12.5, 18.3, 9.7, 15.2, 21.1]
+
+fonction analyser_donnees(valeurs) {
+    soit somme = 0
+    soit minimum = valeurs[0]
+    soit maximum = valeurs[0]
+    
+    pour val dans valeurs {
+        somme += val
+        si (val < minimum) {
+            minimum = val
+        }
+        si (val > maximum) {
+            maximum = val
+        }
+    }
+    
+    soit moyenne = somme / longueur(valeurs)
+    
+    retourner {
+        "moyenne": moyenne,
+        "minimum": minimum,
+        "maximum": maximum,
+        "nombre": longueur(valeurs)
+    }
+}
+
+soit analyse = analyser_donnees(donnees)
+imprimer("Données:", donnees)
+imprimer("Analyse complète:")
+imprimer("  • Moyenne:", math.arrondir(analyse["moyenne"], 2))
+imprimer("  • Minimum:", analyse["minimum"])
+imprimer("  • Maximum:", analyse["maximum"])
+imprimer("  • Nombre de valeurs:", analyse["nombre"])
+
+# === FONCTIONS IA NATIVES ===
+imprimer("\n🤖 === INTÉGRATION IA ===")
+soit config = verifier_config_ia()
+imprimer("Configuration IA:", config)
+
+si (config["openai"] ou config["deepseek"]) {
+    imprimer("🎉 IA disponible pour la génération de contenu!")
+} sinon {
+    imprimer("⚙️ Configurez vos clés API pour l'IA générative")
+}
+
+imprimer("\n✅ === DÉMONSTRATION TERMINÉE ===")
+imprimer("F-IA est maintenant un langage modulaire complet!")

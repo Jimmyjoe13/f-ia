@@ -1,3 +1,4 @@
+# parser.py
 from lexer import Token
 from fia_ast import *
 from errors import ParseError
@@ -37,7 +38,15 @@ class ParserFIA:
 
     def analyser_instruction(self):
         token = self.regarder_token()
-        if token.type == 'SOIT':
+        
+        # === NOUVELLES INSTRUCTIONS D'IMPORT ===
+        if token.type == 'IMPORTER':
+            return self.analyser_import_module()
+        elif token.type == 'DEPUIS':
+            return self.analyser_import_depuis()
+        
+        # === INSTRUCTIONS EXISTANTES ===
+        elif token.type == 'SOIT':
             return self.analyser_declaration_variable()
         elif token.type == 'FONCTION':
             return self.analyser_fonction()
@@ -48,23 +57,88 @@ class ParserFIA:
         elif token.type == 'TANT_QUE':
             return self.analyser_boucle_tant_que()
         elif token.type == 'POUR':
-            # Déterminer si c'est "pour...dans" ou "pour(;;)"
             return self.analyser_boucle_pour_ou_pour_dans()
         elif token.type == 'IDENTIFIANT':
-            # Regarder plus loin pour déterminer le type d'instruction
             return self.analyser_instruction_identifiant()
         else:
             # Pour les expressions qui ne commencent pas par un identifiant
             expr = self.analyser_expression()
-            # Rendre le point-virgule optionnel ici aussi
             if self.regarder_token().type == 'POINT_VIRGULE':
                 self.consommer_token('POINT_VIRGULE')
             return ExpressionStatement(expr)
 
-    def analyser_instruction_identifiant(self):
-        # Sauvegarder la position pour pouvoir revenir en arrière
-        position_sauvee = self.position
+    # === NOUVELLES MÉTHODES POUR LES IMPORTS ===
+
+    def analyser_import_module(self):
+        """
+        Analyse : importer "chemin/module.fia" [comme alias]
+        """
+        self.consommer_token('IMPORTER')
         
+        # Récupérer le chemin du module (chaîne)
+        token_chemin = self.consommer_token('CHAINE')
+        chemin_module = token_chemin.valeur
+        
+        # Vérifier s'il y a un alias
+        alias = None
+        if self.regarder_token().type == 'COMME':
+            self.consommer_token('COMME')
+            token_alias = self.consommer_token('IDENTIFIANT')
+            alias = token_alias.valeur
+        
+        # Point-virgule optionnel
+        if self.regarder_token().type == 'POINT_VIRGULE':
+            self.consommer_token('POINT_VIRGULE')
+        
+        return ImportModule(chemin_module, alias)
+
+    def analyser_import_depuis(self):
+        """
+        Analyse : depuis "module.fia" importer element1 [comme alias1], element2 [comme alias2]
+        """
+        self.consommer_token('DEPUIS')
+        
+        # Récupérer le chemin du module
+        token_chemin = self.consommer_token('CHAINE')
+        chemin_module = token_chemin.valeur
+        
+        self.consommer_token('IMPORTER')
+        
+        # Liste des éléments à importer
+        elements_importes = []
+        
+        # Premier élément
+        nom_element = self.consommer_token('IDENTIFIANT').valeur
+        alias_element = nom_element  # Par défaut, alias = nom
+        
+        if self.regarder_token().type == 'COMME':
+            self.consommer_token('COMME')
+            alias_element = self.consommer_token('IDENTIFIANT').valeur
+        
+        elements_importes.append((nom_element, alias_element))
+        
+        # Éléments supplémentaires
+        while self.regarder_token().type == 'VIRGULE':
+            self.consommer_token('VIRGULE')
+            
+            nom_element = self.consommer_token('IDENTIFIANT').valeur
+            alias_element = nom_element
+            
+            if self.regarder_token().type == 'COMME':
+                self.consommer_token('COMME')
+                alias_element = self.consommer_token('IDENTIFIANT').valeur
+            
+            elements_importes.append((nom_element, alias_element))
+        
+        # Point-virgule optionnel
+        if self.regarder_token().type == 'POINT_VIRGULE':
+            self.consommer_token('POINT_VIRGULE')
+        
+        return ImportDepuis(chemin_module, elements_importes)
+
+    # === MÉTHODES EXISTANTES (INCHANGÉES OU LÉGÈREMENT MODIFIÉES) ===
+
+    def analyser_instruction_identifiant(self):
         # Analyser l'expression complète (identifiant + accès éventuels)
         expr = self.analyser_expression()
         
@@ -79,14 +153,14 @@ class ParserFIA:
                 self.consommer_token('POINT_VIRGULE')
             return Assignation(expr, valeur)
         elif token_courant.type in ['PLUS_EGAL', 'MOINS_EGAL', 'FOIS_EGAL', 'DIVISE_EGAL', 'MODULO_EGAL']:
-            # Assignation composée (+=, -=, *=, /=, %=)
+            # Assignation composée
             operateur = self.consommer_token().valeur
             valeur = self.analyser_expression()
             if self.regarder_token().type == 'POINT_VIRGULE':
                 self.consommer_token('POINT_VIRGULE')
             return AssignationComposee(expr, operateur, valeur)
         else:
-            # C'est juste une expression
+            # Expression simple
             if self.regarder_token().type == 'POINT_VIRGULE':
                 self.consommer_token('POINT_VIRGULE')
             return ExpressionStatement(expr)
@@ -94,12 +168,9 @@ class ParserFIA:
     def analyser_boucle_pour_ou_pour_dans(self):
         self.consommer_token('POUR')
         
-        # Regarder s'il y a une parenthèse ou un identifiant
         if self.regarder_token().type == 'PARENTHESE_OUVRANTE':
-            # C'est une boucle pour classique : pour (init; condition; increment)
             return self.analyser_boucle_pour_classique()
         elif self.regarder_token().type == 'IDENTIFIANT':
-            # C'est potentiellement une boucle pour...dans
             return self.analyser_boucle_pour_dans()
         else:
             raise ParseError(f"Syntaxe de boucle 'pour' invalide", 
@@ -118,7 +189,6 @@ class ParserFIA:
         return BouclePour(init, condition, increment, corps)
 
     def analyser_boucle_pour_dans(self):
-        # Syntaxe: pour variable dans iterable { ... }
         variable = self.consommer_token('IDENTIFIANT').valeur
         self.consommer_token('DANS')
         iterable = self.analyser_expression()
@@ -132,10 +202,8 @@ class ParserFIA:
         if self.regarder_token().type == 'ASSIGNATION':
             self.consommer_token('ASSIGNATION')
             valeur = self.analyser_expression()
-        # RENDRE LE POINT-VIRGULE OPTIONNEL
         if self.regarder_token().type == 'POINT_VIRGULE':
             self.consommer_token('POINT_VIRGULE')
-        # --- FIN CHANGEMENT ---
         return DeclarationVariable(nom, valeur)
 
     def analyser_fonction(self):
@@ -155,12 +223,10 @@ class ParserFIA:
     def analyser_retour(self):
         self.consommer_token('RETOURNER')
         valeur = None
-        if self.regarder_token().type != 'POINT_VIRGULE' and self.regarder_token().type != 'ACCOLADE_FERMANTE': # Si ce n'est pas immédiatement un ';'
+        if self.regarder_token().type not in ['POINT_VIRGULE', 'ACCOLADE_FERMANTE']:
             valeur = self.analyser_expression()
-        # RENDRE LE POINT-VIRGULE OPTIONNEL
         if self.regarder_token().type == 'POINT_VIRGULE':
             self.consommer_token('POINT_VIRGULE')
-        # --- FIN CHANGEMENT ---
         return Retour(valeur)
 
     def analyser_condition(self):
@@ -172,7 +238,6 @@ class ParserFIA:
         bloc_sinon = None
         if self.regarder_token().type == 'SINON':
             self.consommer_token('SINON')
-            # Support de "sinon si (...) { }"
             if self.regarder_token().type == 'SI':
                 bloc_sinon = Bloc([self.analyser_condition()])
             else:
@@ -198,7 +263,6 @@ class ParserFIA:
         return Bloc(instructions)
 
     def analyser_expression(self):
-        # Précédence des opérateurs
         return self.analyser_ou()
 
     def analyser_ou(self):
@@ -242,25 +306,34 @@ class ParserFIA:
         return gauche
 
     def analyser_unaire(self):
-        # Gestion des opérateurs unaires (ex: -5, -variable)
-        if self.regarder_token().type == 'MOINS': # Ajout de la gestion de l'opérateur unaire MOINS
+        if self.regarder_token().type == 'MOINS':
             operateur = self.consommer_token().valeur
-            operand = self.analyser_unaire() # Récursion pour gérer --5 ou -(-x)
+            operand = self.analyser_unaire()
             return ExpressionUnaire(operateur, operand)
-        # Pour l'instant, on passe directement à la primaire
         return self.analyser_appel()
 
     def analyser_appel(self):
         gauche = self.analyser_primaire()
 
-        while self.regarder_token().type in ['PARENTHESE_OUVRANTE', 'CROCHET_OUVRANT']: # Accès indexé
+        while self.regarder_token().type in ['PARENTHESE_OUVRANTE', 'CROCHET_OUVRANT', 'POINT']:
             if self.regarder_token().type == 'PARENTHESE_OUVRANTE':
                 gauche = self.analyser_appel_fonction(gauche)
             elif self.regarder_token().type == 'CROCHET_OUVRANT':
                 gauche = self.analyser_acces_crochet(gauche)
+            elif self.regarder_token().type == 'POINT':
+                # NOUVEAU : Support de l'accès aux attributs (module.fonction)
+                gauche = self.analyser_acces_attribut(gauche)
             else:
                 break
         return gauche
+
+    def analyser_acces_attribut(self, objet_noeud):
+        """
+        Analyse l'accès aux attributs : objet.attribut
+        """
+        self.consommer_token('POINT')
+        nom_attribut = self.consommer_token('IDENTIFIANT').valeur
+        return AccesAttribut(objet_noeud, nom_attribut)
 
     def analyser_appel_fonction(self, nom_fonction_noeud):
         self.consommer_token('PARENTHESE_OUVRANTE')
@@ -271,12 +344,11 @@ class ParserFIA:
                 self.consommer_token('VIRGULE')
                 arguments.append(self.analyser_expression())
         self.consommer_token('PARENTHESE_FERMANTE')
-        # Si le nom_fonction_noeud est un Identifiant, on extrait le nom
+        
         if isinstance(nom_fonction_noeud, Identifiant):
             nom_fonction = nom_fonction_noeud.nom
         else:
-             # Sinon, c'est une expression complexe (ex: obj.fonction)
-             nom_fonction = nom_fonction_noeud # Pourrait être traité différemment si nécessaire
+            nom_fonction = nom_fonction_noeud
         return AppelFonction(nom_fonction, arguments)
 
     def analyser_acces_crochet(self, base_noeud):
@@ -284,8 +356,6 @@ class ParserFIA:
         index_expr = self.analyser_expression()
         self.consommer_token('CROCHET_FERMANT')
         
-        # Déterminer si c'est un accès liste ou dictionnaire
-        # Si l'expression d'index est un littéral string, c'est probablement un dictionnaire
         if hasattr(index_expr, 'valeur') and isinstance(index_expr.valeur, str):
             return AccesDictionnaire(base_noeud, index_expr)
         else:
@@ -312,8 +382,8 @@ class ParserFIA:
             return self.analyser_liste()
         elif token.type == 'ACCOLADE_OUVRANTE':
             return self.analyser_dictionnaire()
-        elif token.type in ['IDENTIFIANT', 'IMPRIMER', 'LONGUEUR', 'ENTIER', 'DECIMAL', 'BOOLEEN', 'CHAINE']:
-        # Autoriser l'utilisation de fonctions intégrées mappées comme mots-clés
+        elif token.type == 'IDENTIFIANT':
+            # CHANGEMENT : Accepter TOUS les identifiants (y compris les anciens mots-clés)
             nom = self.consommer_token().valeur
             return Identifiant(nom)
         elif token.type == 'PARENTHESE_OUVRANTE':
@@ -322,23 +392,21 @@ class ParserFIA:
             self.consommer_token('PARENTHESE_FERMANTE')
             return expr
         else:
-            raise ParseError(f"Erreur de syntaxe: expression inattendue '{token.type}' à la ligne {token.ligne}")
+            raise ParseError(f"Expression inattendue '{token.type}' à la ligne {token.ligne}")
 
     def analyser_liste(self):
-        self.consommer_token() # '['
+        self.consommer_token()  # '['
         elements = []
         if self.regarder_token().type != 'CROCHET_FERMANT':
             elements.append(self.analyser_expression())
             while self.regarder_token().type == 'VIRGULE':
                 self.consommer_token('VIRGULE')
                 elements.append(self.analyser_expression())
-        self.consommer_token('CROCHET_FERMANT') # ']'
+        self.consommer_token('CROCHET_FERMANT')  # ']'
         
-        # Évaluer immédiatement les éléments de la liste
         elements_evalues = []
         for elem in elements:
             if hasattr(elem, 'valeur') and hasattr(elem, 'accepter'):
-                # Si c'est un Littéral, extraire sa valeur
                 elements_evalues.append(elem.valeur)
             else:
                 elements_evalues.append(elem)
@@ -346,49 +414,38 @@ class ParserFIA:
         return Littéral(elements_evalues)
 
     def analyser_dictionnaire(self):
-        self.consommer_token('ACCOLADE_OUVRANTE') # '{'
+        self.consommer_token('ACCOLADE_OUVRANTE')  # '{'
         elements = {}
-        
+    
         if self.regarder_token().type != 'ACCOLADE_FERMANTE':
             # Premier élément
             cle = self.analyser_expression()
-            self.consommer_token('DEUX_POINTS') # ':'
+            self.consommer_token('DEUX_POINTS')  # ':'
             valeur = self.analyser_expression()
-            
-            # Extraire la valeur de la clé et de la valeur si c'est un Littéral
-            if hasattr(cle, 'valeur'):
-                cle_str = cle.valeur
-            else:
-                cle_str = str(cle)
-            
-            if hasattr(valeur, 'valeur'):
-                valeur_python = valeur.valeur
-            else:
-                valeur_python = valeur
-                
-            elements[cle_str] = valeur_python
-            
+        
+            # CORRECTION : Ne pas évaluer ici, laisser l'interpréteur le faire
+            elements[self._extraire_cle_dict(cle)] = valeur
+        
             # Éléments suivants
             while self.regarder_token().type == 'VIRGULE':
                 self.consommer_token('VIRGULE')
                 if self.regarder_token().type == 'ACCOLADE_FERMANTE':
                     break  # Virgule de fin autorisée
-                
+            
                 cle = self.analyser_expression()
                 self.consommer_token('DEUX_POINTS')
                 valeur = self.analyser_expression()
-                
-                if hasattr(cle, 'valeur'):
-                    cle_str = cle.valeur
-                else:
-                    cle_str = str(cle)
-                
-                if hasattr(valeur, 'valeur'):
-                    valeur_python = valeur.valeur
-                else:
-                    valeur_python = valeur
-                    
-                elements[cle_str] = valeur_python
-        
-        self.consommer_token('ACCOLADE_FERMANTE') # '}'
-        return Littéral(elements)
+            
+                elements[self._extraire_cle_dict(cle)] = valeur
+    
+        self.consommer_token('ACCOLADE_FERMANTE')  # '}'
+        # CORRECTION : Retourner un nœud AST spécial pour les dictionnaires
+        return DictionnaireLitteral(elements)
+
+    def _extraire_cle_dict(self, noeud_cle):
+        """Extrait la clé d'un noeud pour un dictionnaire"""
+        if hasattr(noeud_cle, 'valeur'):
+            return noeud_cle.valeur
+        else:
+            return str(noeud_cle)
+

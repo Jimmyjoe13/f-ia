@@ -1,0 +1,34 @@
+# lib/collections.fia - VERSION CORRIGÉE
+fonction creer_pile() {
+    soit pile = []
+    retourner pile
+}
+
+fonction empiler(pile, element) {
+    # SOLUTION : Utiliser directement la liste au lieu d'appeler ajouter
+    pile[longueur(pile)] = element  # Simulation d'append
+    retourner pile
+}
+
+fonction depiler(pile) {
+    si (longueur(pile) == 0) {
+        retourner nul
+    }
+    soit element = pile[longueur(pile) - 1]
+    # Créer une nouvelle liste sans le dernier élément
+    soit nouvelle_pile = []
+    soit i = 0
+    tant_que (i < longueur(pile) - 1) {
+        nouvelle_pile[i] = pile[i]
+        i += 1
+    }
+    # Copier la nouvelle pile dans l'ancienne
+    i = 0
+    tant_que (i < longueur(nouvelle_pile)) {
+        pile[i] = nouvelle_pile[i]
+        i += 1
+    }
+    retourner element
+}
+
+imprimer("✅ Module collections.fia (v2) chargé")

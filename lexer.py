@@ -20,13 +20,13 @@ class LexerFIA:
         self.colonne = 1
         self.tokens = []
 
-        # Mots-clés
+        # Mots-clés (SUPPRIMÉ RACINE, PUISSANCE, etc. - ce sont des fonctions, pas des mots-clés)
         self.mots_cles = {
             'soit': 'SOIT',
             'si': 'SI',
             'sinon': 'SINON',
             'pour': 'POUR',
-            'dans': 'DANS',  # NOUVEAU MOT-CLÉ
+            'dans': 'DANS',
             'tant_que': 'TANT_QUE',
             'fonction': 'FONCTION',
             'retourner': 'RETOURNER',
@@ -36,21 +36,15 @@ class LexerFIA:
             'et': 'ET',
             'ou': 'OU',
             'non': 'NON',
-            'imprimer': 'IMPRIMER',
-            'longueur': 'LONGUEUR',
-            'arrondir': 'ARRONDIR',
-            'aleatoire': 'ALEATOIRE',
-            'racine': 'RACINE',
-            'puissance': 'PUISSANCE',
-            'entier': 'ENTIER',
-            'chaine': 'CHAINE',
             'essayer': 'ESSAYER',
             'attraper': 'ATTRAPER',
+            # === MOTS-CLÉS MODULES ===
             'importer': 'IMPORTER',
+            'depuis': 'DEPUIS',
+            'comme': 'COMME',
             'de': 'DE',
-            'aleatoire': 'ALEATOIRE',
-            'arrondir': 'ARRONDIR',
-            # Mots-clés IA futurs...
+            # SUPPRIMÉ : racine, puissance, arrondir, aleatoire, etc. 
+            # Ce sont des fonctions intégrées, pas des mots-clés !
         }
 
         # Symboles et opérateurs
@@ -63,7 +57,7 @@ class LexerFIA:
             '>': 'SUP',
             '>=': 'SUP_EGAL',
             '+': 'PLUS',
-            '-': 'MOINS',  # binaire et unaire
+            '-': 'MOINS',
             '*': 'FOIS',
             '/': 'DIVISE',
             '%': 'MODULO',
@@ -77,7 +71,7 @@ class LexerFIA:
             ',': 'VIRGULE',
             ':': 'DEUX_POINTS',
             ';': 'POINT_VIRGULE',
-            # Nouveaux opérateurs d'assignation composés
+            # Opérateurs d'assignation composés
             '+=': 'PLUS_EGAL',
             '-=': 'MOINS_EGAL',
             '*=': 'FOIS_EGAL',
@@ -89,7 +83,7 @@ class LexerFIA:
         while self.position < len(self.code):
             char = self.code[self.position]
 
-        # Espaces
+            # Espaces
             if char.isspace():
                 if char == '\n':
                     self.ligne += 1
@@ -99,41 +93,41 @@ class LexerFIA:
                 self.avancer()
                 continue
 
-        # Commentaires: # ... fin de ligne
+            # Commentaires: # ... fin de ligne
             if char == '#':
                 self.ignorer_commentaire_ligne()
                 continue
 
-        # Commentaires: // ... fin de ligne (AVANT symboles!)
+            # Commentaires: // ... fin de ligne (AVANT symboles!)
             if char == '/' and self.position + 1 < len(self.code) and self.code[self.position + 1] == '/':
                 self.avancer()  # avance sur le premier '/'
                 self.avancer()  # avance sur le deuxième '/'
                 self.ignorer_commentaire_ligne()
                 continue
 
-        # Identifiants / Mots-clés
+            # Identifiants / Mots-clés
             if char.isalpha() or char == '_' or self.est_accentue(char):
                 self.traiter_mot_cle_ou_identifiant()
                 continue
 
-        # Nombres
+            # Nombres
             if char.isdigit():
                 self.traiter_nombre()
                 continue
 
-        # Chaînes
+            # Chaînes
             if char in ['"', "'"]:
                 self.traiter_chaine()
                 continue
 
-        # Symboles (APRÈS commentaires //)
+            # Symboles (APRÈS commentaires //)
             if self.traiter_symbole():
                 continue
 
-        # Caractère inconnu
+            # Caractère inconnu
             raise LexerError(f"Caractère inconnu '{char}' à la ligne {self.ligne}, colonne {self.colonne}")
 
-    # Token de fin
+        # Token de fin
         self.tokens.append(Token('EOF', '', self.ligne, self.colonne))
         return self.tokens
 
@@ -160,7 +154,6 @@ class LexerFIA:
         # Ignore jusqu'au prochain '\n' ou fin de fichier
         while self.position < len(self.code) and self.code[self.position] != '\n':
             self.avancer()
-        # Le saut de ligne (s'il existe) sera géré par la boucle principale/espaces
 
     def traiter_mot_cle_ou_identifiant(self):
         debut = self.position
@@ -223,20 +216,21 @@ class LexerFIA:
         return False
 
     def colonne_calcul(self, debut, lexeme):
-        # Calcule une colonne cohérente (colonne de début du token sur la ligne actuelle)
-        # Ici, on retourne la colonne courante moins la longueur restante sur la ligne si besoin
-        # Simplification: on renvoie la colonne actuelle (suffisant pour debug)
         return self.colonne
 
 # Exemple d'utilisation
 if __name__ == "__main__":
     code = """
-    # Ceci est un commentaire
-    soit x = 10; // commentaire en fin de ligne
+    # Test nouveau lexer avec imports
+    importer "utils/math.fia" comme math
+    depuis "collections.fia" importer liste_triee
+    
+    soit x = 10
     pour nom dans noms {
         imprimer(nom)
     }
-    x += 5  # Test opérateurs composés
+    x += 5
+    racine(x)  // Maintenant c'est un identifiant, pas un mot-clé
     """
     lexer = LexerFIA(code)
     tokens = lexer.tokeniser()

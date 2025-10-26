@@ -1,0 +1,47 @@
+# test_fonction.fia
+importer "lib/math.fia" comme math
+
+fonction calculer_statistiques(nombres) {
+    soit somme = 0
+    soit min_val = nombres[0]
+    soit max_val = nombres[0]
+    
+    soit i = 0
+    tant_que (i < longueur(nombres)) {
+        soit n = nombres[i]
+        somme += n
+        si (n < min_val) {
+            min_val = n
+        }
+        si (n > max_val) {
+            max_val = n
+        }
+        i += 1
+    }
+    
+    soit moyenne = somme / longueur(nombres)
+    
+    retourner {
+        "moyenne": moyenne,
+        "minimum": min_val,
+        "maximum": max_val,
+        "somme": somme
+    }
+}
+
+soit donnees = [12, 8, 15, 20, 5, 18]
+soit stats = calculer_statistiques(donnees)
+imprimer("Données:", donnees)
+imprimer("Moyenne:", stats["moyenne"])
+imprimer("Moyenne arrondie:", arrondir(stats["moyenne"]))
+imprimer("Min:", stats["minimum"])
+imprimer("Max:", stats["maximum"])
+imprimer("Somme:", stats["somme"])
+
+# Test des fonctions du module math
+imprimer("\n=== Tests module math ===")
+imprimer("Carré de 7:", math.carre(7))
+imprimer("Racine de 49:", math.racine_carree(49))
+imprimer("Factorielle de 5:", math.factorielle(5))
+imprimer("Max de 15 et 8:", math.maximum(15, 8))
+imprimer("PI:", math.PI)

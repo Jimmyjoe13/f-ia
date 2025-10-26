@@ -1,0 +1,57 @@
+# lib/math.fia
+# Module mathématique avancé pour F-IA
+
+soit PI = 3.14159265359
+soit E = 2.71828182846
+
+fonction carre(x) {
+    retourner x * x
+}
+
+fonction cube(x) {
+    retourner x * x * x
+}
+
+fonction racine_carree(x) {
+    # Utiliser la fonction intégrée 'racine' au lieu du mot-clé
+    retourner racine(x)
+}
+
+fonction factorielle(n) {
+    si (n <= 1) {
+        retourner 1
+    } sinon {
+        retourner n * factorielle(n - 1)
+    }
+}
+
+fonction maximum(a, b) {
+    si (a > b) {
+        retourner a
+    } sinon {
+        retourner b
+    }
+}
+
+fonction minimum(a, b) {
+    si (a < b) {
+        retourner a
+    } sinon {
+        retourner b
+    }
+}
+
+fonction absolue(x) {
+    si (x < 0) {
+        retourner -x
+    } sinon {
+        retourner x
+    }
+}
+
+fonction arrondir_decimal(nombre, decimales) {
+    retourner arrondir(nombre, decimales)
+}
+
+
+imprimer("✅ Module math.fia chargé - Fonctions disponibles: carre, cube, racine_carree, factorielle, maximum, minimum, absolue")

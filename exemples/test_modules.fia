@@ -1,0 +1,37 @@
+# exemples/test_modules.fia
+# Test du système de modules F-IA
+
+imprimer("🧪 === TEST DU SYSTÈME DE MODULES ===")
+
+# Test 1: Import avec alias
+imprimer("\n📦 Test 1: Import avec alias")
+importer "lib/math.fia" comme math
+
+soit x = 5
+imprimer("Carré de", x, "=", math.carre(x))
+imprimer("Factorielle de", x, "=", math.factorielle(x))
+imprimer("PI =", math.PI)
+
+# Test 2: Import depuis module
+imprimer("\n📦 Test 2: Import depuis module")
+depuis "lib/collections.fia" importer creer_pile, empiler, depiler
+
+soit ma_pile = creer_pile()
+empiler(ma_pile, "premier")
+empiler(ma_pile, "deuxième")
+empiler(ma_pile, "troisième")
+
+imprimer("Pile créée:", ma_pile)
+imprimer("Dépiler:", depiler(ma_pile))
+imprimer("Pile après:", ma_pile)
+
+# Test 3: Import multiple avec alias
+imprimer("\n📦 Test 3: Import avec alias personnalisés")
+depuis "lib/math.fia" importer maximum comme max, minimum comme min
+
+soit a = 10
+soit b = 20
+imprimer("Max de", a, "et", b, "=", max(a, b))
+imprimer("Min de", a, "et", b, "=", min(a, b))
+
+imprimer("\n✅ Tests terminés avec succès!")

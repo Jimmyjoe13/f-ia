@@ -16,9 +16,13 @@ def _longueur(obj):
 
 def _arrondir(nombre, decimales=0):
     try:
-        return round(float(nombre), int(decimales))
-    except Exception:
-        raise RuntimeError("Erreur d'exécution: 'arrondir' attend (nombre, décimales)")
+        # Conversion sûre des arguments
+        nombre_float = float(nombre)
+        decimales_int = int(decimales) if decimales is not None else 0
+        return round(nombre_float, decimales_int)
+    except Exception as e:
+        raise RuntimeError(f"Erreur d'exécution: 'arrondir' attend (nombre, [décimales optionnel]) - {e}")
+
 
 def _aleatoire():
     import random
@@ -172,7 +176,7 @@ def _ajouter(l, e):
     if not isinstance(l, list):
         raise RuntimeError("Erreur d'exécution: 'ajouter' attend une liste")
     l.append(e)
-    return l
+    return l  # IMPORTANT: Retourner la liste
 
 def _retirer(l, index):
     if not isinstance(l, list):
@@ -180,7 +184,8 @@ def _retirer(l, index):
     if not isinstance(index, int) or index < 0 or index >= len(l):
         raise RuntimeError("Erreur d'exécution: index invalide dans 'retirer'")
     l.pop(index)
-    return l
+    return l  # IMPORTANT: Retourner la liste
+
 
 def _trier(l):
     if not isinstance(l, list):
