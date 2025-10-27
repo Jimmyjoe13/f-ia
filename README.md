@@ -117,6 +117,45 @@ soit acc = ml.evaluer_modele(m, Xs, y, "accuracy")
 imprimer("Accuracy:", acc)
 ```
 
+## 🌐 Exemple Complet: Application Web d'Analyse SEO (NOUVEAU)
+
+Cette application montre comment créer une **application SEO réelle** en F-IA :
+- Extraction HTML réelle via `requests` (backend `ml_backend.py`)
+- Analyse: titre, meta description, structure H1/H2/H3, contenu, liens, images, technique
+- Score global sur 100 avec recommandations
+- Rapport HTML généré (aperçu en console)
+
+### Arborescence
+```
+exemples/seo_analyzer/
+├── seo_scraper.fia      # Extraction (réelle) du HTML + parsing simple
+├── seo_analyzer.fia     # Calcul des scores/diagnostics SEO
+├── seo_reporter.fia     # Génération d'un rapport HTML (console)
+└── seo_main.fia         # Interface utilisateur interactive (menu)
+```
+
+### Pré-requis
+- Assurez-vous d'avoir `requests` installé (déjà dans `requirements.txt`)
+- Le fichier `ml_backend.py` inclut une fonction `faire_requete_web(url)` exposée à F-IA via `appeler_python_ml`
+
+### Lancer l'application SEO (interface)
+```bash
+python main.py exemples/seo_analyzer/seo_main.fia
+```
+
+### Exemple rapide (test unitaire)
+```bash
+python main.py exemples/seo_analyzer/test_scraper.fia
+python main.py exemples/seo_analyzer/test_analyzer.fia
+python main.py exemples/seo_analyzer/test_complet.fia
+```
+
+### Ce que vous verrez
+- Status HTTP, taille HTML réelle
+- Titre/meta détectés, nombre de H1/H2/H3, liens, images
+- Score global et sections détaillées
+- Aperçu d'un rapport HTML généré (chemin: `rapports/rapport_seo_*.html` simulé)
+
 ## 📚 Autres modules clés
 - `lib/texte.fia`, `lib/fichiers.fia`, `lib/utils.fia`, `lib/web.fia`, `lib/math.fia`, `lib/collections.fia`
 
@@ -154,6 +193,7 @@ imprimer("Accuracy:", acc)
 ## 💡 Applications réalisables
 - Chatbots, analyseurs de données, clients API, gestionnaires de fichiers, générateurs de contenu, tableaux de bord, apps industrielles
 - ML: classification, régression, clustering, validation
+- 🌐 SEO: Analyseur SEO web complet (exemple ci-dessus)
 
 ## 📞 Support et Contribution
 - Repository: https://github.com/Jimmyjoe13/f-ia
