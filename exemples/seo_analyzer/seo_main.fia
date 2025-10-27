@@ -1,0 +1,255 @@
+# seo_main.fia
+# Interface principale de l'application SEO F-IA
+
+importer "exemples\seo_analyzer\seo_scraper.fia" comme scraper
+importer "exemples\seo_analyzer\seo_analyzer.fia" comme analyzer
+importer "exemples\seo_analyzer\seo_reporter.fia" comme reporter
+
+# Interface principale
+fonction demarrer_application_seo() {
+    afficher_header()
+    
+    soit continuer = vrai
+    tant_que (continuer) {
+        afficher_menu()
+        soit choix = lire()
+        
+        si (choix == "1") {
+            analyser_url_interactive()
+        } sinon si (choix == "2") {
+            analyser_urls_multiples()
+        } sinon si (choix == "3") {
+            afficher_aide()
+        } sinon si (choix == "4" ou choix == "q" ou choix == "quitter") {
+            continuer = faux
+            imprimer("👋 Merci d'avoir utilisé F-IA SEO Analyzer!")
+        } sinon {
+            imprimer("❌ Choix invalide. Veuillez réessayer.")
+        }
+        
+        si (continuer) {
+            imprimer("")
+            imprimer("Appuyez sur Entrée pour continuer...")
+            lire()
+        }
+    }
+}
+
+# Affichage de l'en-tête
+fonction afficher_header() {
+    imprimer("🔍 ======================================")
+    imprimer("🇫🇷 F-IA SEO ANALYZER v1.0")
+    imprimer("🔍 ======================================")
+    imprimer("🚀 Analyseur SEO en langage français")
+    imprimer("⚡ Propulsé par F-IA v2.0")
+    imprimer("")
+}
+
+# Affichage du menu
+fonction afficher_menu() {
+    imprimer("📋 === MENU PRINCIPAL ===")
+    imprimer("1️⃣ Analyser une URL")
+    imprimer("2️⃣ Analyse multiple (batch)")
+    imprimer("3️⃣ Aide et documentation")
+    imprimer("4️⃣ Quitter")
+    imprimer("")
+    imprimer("Votre choix: ", "")
+}
+
+# Analyse interactive d'une URL
+fonction analyser_url_interactive() {
+    imprimer("🌐 === ANALYSE SEO D'UNE URL ===")
+    imprimer("Entrez l'URL à analyser (avec http:// ou https://): ", "")
+    soit url = lire()
+    
+    si (longueur(url) == 0) {
+        imprimer("❌ URL vide. Retour au menu.")
+        retourner nul
+    }
+    
+    # Validation basique
+    si (valider_url_basique(url) == faux) {
+        imprimer("❌ URL invalide. Veuillez vérifier le format.")
+        retourner nul
+    }
+    
+    imprimer("")
+    imprimer("🔄 Analyse en cours de:", url)
+    imprimer("⏳ Veuillez patienter...")
+    imprimer("")
+    
+    # Processus d'analyse complet
+    soit donnees = scraper.extraire_contenu_seo(url)
+    
+    si (donnees["success"]) {
+        soit analyse = analyzer.analyser_seo(donnees)
+        
+        # Affichage des résultats
+        analyzer.afficher_analyse_seo(analyse)
+        
+        # Proposition de rapport HTML
+        imprimer("💾 Voulez-vous générer un rapport HTML? (o/n): ", "")
+        soit reponse = lire()
+        
+        si (reponse == "o" ou reponse == "oui" ou reponse == "O") {
+            soit nom_fichier = generer_nom_fichier(url)
+            soit rapport = reporter.generer_rapport_html(analyse, nom_fichier)
+            imprimer("✅ Rapport sauvegardé:", rapport["fichier"])
+        }
+        
+    } sinon {
+        imprimer("❌ Erreur lors de l'analyse:", donnees["erreur"])
+    }
+}
+
+# Analyse multiple
+fonction analyser_urls_multiples() {
+    imprimer("📚 === ANALYSE MULTIPLE ===")
+    imprimer("Entrez les URLs une par une (ligne vide pour finir):")
+    
+    soit urls = []
+    soit compteur = 1
+    
+    tant_que (vrai) {
+        imprimer("URL " + chaine(compteur) + ": ", "")
+        soit url = lire()
+        
+        si (longueur(url) == 0) {
+            stopper
+        }
+        
+        si (valider_url_basique(url)) {
+            ajouter(urls, url)
+            compteur += 1
+        } sinon {
+            imprimer("❌ URL invalide ignorée:", url)
+        }
+    }
+    
+    si (longueur(urls) == 0) {
+        imprimer("❌ Aucune URL valide fournie.")
+        retourner nul
+    }
+    
+    imprimer("")
+    imprimer("📊 Analyse de", longueur(urls), "URL(s)...")
+    imprimer("")
+    
+    soit resultats = []
+    soit numero = 1
+    
+    pour url dans urls {
+        imprimer("🔄 [" + chaine(numero) + "/" + chaine(longueur(urls)) + "] Analyse:", url)
+        
+        soit donnees = scraper.extraire_contenu_seo(url)
+        
+        si (donnees["success"]) {
+            soit analyse = analyzer.analyser_seo(donnees)
+            ajouter(resultats, analyse)
+            imprimer("✅ Score:", analyse["score_global"], "/100")
+        } sinon {
+            imprimer("❌ Échec:", donnees["erreur"])
+        }
+        
+        numero += 1
+        imprimer("")
+    }
+    
+    # Résumé final
+    afficher_resume_multiple(resultats)
+}
+
+# Affichage de l'aide
+fonction afficher_aide() {
+    imprimer("📖 === AIDE F-IA SEO ANALYZER ===")
+    imprimer("")
+    imprimer("🎯 FONCTIONNALITÉS:")
+    imprimer("• Analyse complète SEO (titre, meta, contenu, structure)")
+    imprimer("• Score global sur 100 points")
+    imprimer("• Recommandations personnalisées")
+    imprimer("• Rapports HTML détaillés")
+    imprimer("• Analyse multiple (batch)")
+    imprimer("")
+    imprimer("📝 CRITÈRES D'ANALYSE:")
+    imprimer("• Titre: longueur optimale (30-60 caractères)")
+    imprimer("• Meta description: longueur optimale (120-160 caractères)")
+    imprimer("• Contenu: nombre de mots, densité mots-clés")
+    imprimer("• Structure: hiérarchie des titres (H1, H2, etc.)")
+    imprimer("• Images: présence et attributs alt")
+    imprimer("• Liens: maillage interne et externe")
+    imprimer("• Technique: taille de page, structure URL")
+    imprimer("")
+    imprimer("🌐 FORMATS URL SUPPORTÉS:")
+    imprimer("• https://exemple.com")
+    imprimer("• http://exemple.com")
+    imprimer("• https://www.exemple.com/page")
+    imprimer("")
+    imprimer("💡 CONSEILS:")
+    imprimer("• Testez d'abord avec une URL pour comprendre le système")
+    imprimer("• Les rapports HTML sont sauvegardés dans le dossier 'rapports/'")
+    imprimer("• Score 80+ = Excellent, 60+ = Bon, 40+ = Moyen, <40 = À améliorer")
+}
+
+# Fonctions utilitaires
+fonction valider_url_basique(url) {
+    # Version sans dépendance au module texte pour éviter les conflits
+    soit contient_http = url != remplacer(url, "http://", "")
+    soit contient_https = url != remplacer(url, "https://", "")
+    retourner (contient_http ou contient_https) et longueur(url) > 10
+}
+
+fonction generer_nom_fichier(url) {
+    # Extraction simple du domaine pour le nom de fichier
+    soit domaine_brut = remplacer(url, "https://", "")
+    domaine_brut = remplacer(domaine_brut, "http://", "")
+    domaine_brut = remplacer(domaine_brut, "www.", "")
+    
+    # Prendre seulement la partie avant le premier /
+    soit parties = diviser(domaine_brut, "/")
+    soit domaine = parties[0]
+    
+    soit nom_propre = remplacer(domaine, ".", "_")
+    nom_propre = remplacer(nom_propre, "-", "_")
+    retourner "rapport_seo_" + nom_propre
+}
+
+fonction afficher_resume_multiple(resultats) {
+    si (longueur(resultats) == 0) {
+        retourner nul
+    }
+    
+    imprimer("📊 === RÉSUMÉ DE L'ANALYSE MULTIPLE ===")
+    imprimer("📈 Sites analysés:", longueur(resultats))
+    
+    soit total_score = 0
+    soit meilleur_score = 0
+    soit pire_score = 100
+    
+    pour resultat dans resultats {
+        total_score += resultat["score_global"]
+        si (resultat["score_global"] > meilleur_score) {
+            meilleur_score = resultat["score_global"]
+        }
+        si (resultat["score_global"] < pire_score) {
+            pire_score = resultat["score_global"]
+        }
+    }
+    
+    soit score_moyen = arrondir(total_score / longueur(resultats), 1)
+    
+    imprimer("📊 Score moyen:", score_moyen, "/100")
+    imprimer("🏆 Meilleur score:", meilleur_score, "/100")
+    imprimer("📉 Score le plus faible:", pire_score, "/100")
+    
+    imprimer("")
+    imprimer("📋 DÉTAIL PAR SITE:")
+    soit numero = 1
+    pour resultat dans resultats {
+        imprimer(chaine(numero) + ". " + resultat["url"] + " - Score: " + chaine(resultat["score_global"]) + "/100")
+        numero += 1
+    }
+}
+
+# Point d'entrée principal
+imprimer("🚀 Démarrage de F-IA SEO Analyzer...")
+demarrer_application_seo()

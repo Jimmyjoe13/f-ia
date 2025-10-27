@@ -1,0 +1,34 @@
+# test_complet_simple.fia
+# Test de l'application SEO complète (version simplifiée)
+
+importer "exemples\seo_analyzer\seo_scraper.fia" comme scraper
+importer "exemples\seo_analyzer\seo_analyzer.fia" comme analyzer
+importer "exemples\seo_analyzer\seo_reporter.fia" comme reporter
+
+imprimer("🚀 === APPLICATION SEO COMPLÈTE ===")
+
+# Test d'extraction
+soit url_test = "https://example.com/page-seo"
+soit donnees = scraper.extraire_contenu_seo(url_test)
+
+si (donnees["success"]) {
+    # Analyse SEO
+    soit analyse = analyzer.analyser_seo(donnees)
+    
+    # Affichage console
+    analyzer.afficher_analyse_seo(analyse)
+    
+    # Génération du rapport HTML (nom simple)
+    soit rapport = reporter.generer_rapport_html(analyse, "rapport_seo_test")
+    
+    imprimer("📊 === RÉSUMÉ FINAL ===")
+    imprimer("✅ URL analysée:", url_test)
+    imprimer("📊 Score global:", analyse["score_global"], "/100")
+    imprimer("📄 Rapport généré:", rapport["fichier"])
+    imprimer("📏 Taille rapport:", rapport["taille"], "caractères")
+    
+} sinon {
+    imprimer("❌ Erreur:", donnees["erreur"])
+}
+
+imprimer("🎉 Application SEO terminée!")

@@ -1,0 +1,271 @@
+# seo_reporter.fia
+# Module de génération de rapports SEO en HTML
+
+importer "lib/fichiers.fia" comme fichiers
+importer "lib/utils.fia" comme utils
+
+# Fonction principale de génération de rapport
+fonction generer_rapport_html(analyse, nom_fichier) {
+    imprimer("📝 Génération du rapport HTML...")
+    
+    soit contenu_html = construire_html_rapport(analyse)
+    soit chemin_fichier = "rapports/" + nom_fichier + ".html"
+    
+    # Simuler l'écriture du fichier (F-IA n'a pas encore de fonction d'écriture)
+    imprimer("💾 Sauvegarde simulée:", chemin_fichier)
+    imprimer("📄 Contenu HTML généré (", longueur(contenu_html), "caractères)")
+    
+    # Afficher un aperçu du HTML
+    afficher_apercu_html(contenu_html)
+    
+    retourner {
+        "fichier": chemin_fichier,
+        "taille": longueur(contenu_html),
+        "success": vrai
+    }
+}
+
+# Construction du HTML complet
+fonction construire_html_rapport(analyse) {
+    soit html = ""
+    
+    # En-tête HTML
+    html += "<!DOCTYPE html>"
+    html += "<html lang='fr'>"
+    html += "<head>"
+    html += "<meta charset='UTF-8'>"
+    html += "<meta name='viewport' content='width=device-width, initial-scale=1.0'>"
+    html += "<title>Rapport SEO - " + analyse["url"] + "</title>"
+    html += generer_css_styles()
+    html += "</head>"
+    html += "<body>"
+    
+    # Header du rapport
+    html += "<div class='container'>"
+    html += "<header class='header'>"
+    html += "<h1>🔍 Rapport d'Analyse SEO</h1>"
+    html += "<div class='url'>Analysé: <strong>" + analyse["url"] + "</strong></div>"
+    html += "<div class='date'>Généré le: " + utils.date_actuelle() + "</div>"
+    html += "</header>"
+    
+    # Score global
+    html += "<div class='score-global'>"
+    html += "<h2>📊 Score Global</h2>"
+    html += "<div class='score-circle'>"
+    html += "<span class='score'>" + chaine(analyse["score_global"]) + "</span>"
+    html += "<span class='score-max'>/100</span>"
+    html += "</div>"
+    html += "<div class='score-label'>" + obtenir_label_score(analyse["score_global"]) + "</div>"
+    html += "</div>"
+    
+    # Détail des analyses
+    html += "<div class='analyses'>"
+    html += generer_section_titre(analyse["analyses"]["title"])
+    html += generer_section_meta(analyse["analyses"]["meta_description"])
+    html += generer_section_contenu(analyse["analyses"]["contenu"])
+    html += generer_section_structure(analyse["analyses"]["headings"])
+    html += generer_section_images(analyse["analyses"]["images"])
+    html += generer_section_liens(analyse["analyses"]["liens"])
+    html += generer_section_technique(analyse["analyses"]["technique"])
+    html += "</div>"
+    
+    # Footer
+    html += "<footer class='footer'>"
+    html += "<p>Généré par F-IA SEO Analyzer v1.0 🇫🇷</p>"
+    html += "</footer>"
+    html += "</div>"
+    html += "</body>"
+    html += "</html>"
+    
+    retourner html
+}
+
+# Génération des styles CSS
+fonction generer_css_styles() {
+    soit css = "<style>"
+    css += "* { margin: 0; padding: 0; box-sizing: border-box; }"
+    css += "body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; color: #333; line-height: 1.6; }"
+    css += ".container { max-width: 1200px; margin: 0 auto; padding: 20px; }"
+    css += ".header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px; text-align: center; }"
+    css += ".header h1 { font-size: 2.5rem; margin-bottom: 10px; }"
+    css += ".url { font-size: 1.2rem; margin: 10px 0; }"
+    css += ".date { opacity: 0.9; font-size: 0.9rem; }"
+    css += ".score-global { background: white; padding: 30px; border-radius: 12px; text-align: center; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }"
+    css += ".score-circle { display: inline-block; width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(#4CAF50 0deg, #4CAF50 var(--score-deg), #e0e0e0 var(--score-deg), #e0e0e0 360deg); position: relative; margin: 20px 0; }"
+    css += ".score { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2rem; font-weight: bold; color: #4CAF50; }"
+    css += ".score-max { font-size: 1rem; color: #666; }"
+    css += ".score-label { font-size: 1.1rem; font-weight: 500; margin-top: 10px; }"
+    css += ".analyses { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }"
+    css += ".analysis-card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }"
+    css += ".analysis-card h3 { color: #667eea; margin-bottom: 15px; font-size: 1.3rem; }"
+    css += ".metric { display: flex; justify-content: space-between; align-items: center; margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }"
+    css += ".metric:last-child { border-bottom: none; }"
+    css += ".metric-label { font-weight: 500; }"
+    css += ".metric-value { font-weight: bold; color: #667eea; }"
+    css += ".score-bar { width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; margin: 10px 0; }"
+    css += ".score-fill { height: 100%; background: linear-gradient(90deg, #ff4444, #ffaa00, #4CAF50); border-radius: 4px; }"
+    css += ".problems { margin: 15px 0; }"
+    css += ".problems h4 { color: #f44336; margin-bottom: 8px; }"
+    css += ".problems ul { list-style: none; }"
+    css += ".problems li { padding: 5px 0; padding-left: 20px; position: relative; }"
+    css += ".problems li:before { content: '❌'; position: absolute; left: 0; }"
+    css += ".recommendations { margin: 15px 0; }"
+    css += ".recommendations h4 { color: #4CAF50; margin-bottom: 8px; }"
+    css += ".recommendations ul { list-style: none; }"
+    css += ".recommendations li { padding: 5px 0; padding-left: 20px; position: relative; }"
+    css += ".recommendations li:before { content: '💡'; position: absolute; left: 0; }"
+    css += ".footer { text-align: center; margin-top: 40px; padding: 20px; color: #666; }"
+    css += "</style>"
+    retourner css
+}
+
+# Section titre
+fonction generer_section_titre(titre_analysis) {
+    soit html = "<div class='analysis-card'>"
+    html += "<h3>📝 Titre de la Page</h3>"
+    html += "<div class='metric'><span class='metric-label'>Score</span><span class='metric-value'>" + chaine(titre_analysis["score"]) + "/100</span></div>"
+    html += "<div class='score-bar'><div class='score-fill' style='width: " + chaine(titre_analysis["score"]) + "%'></div></div>"
+    html += "<div class='metric'><span class='metric-label'>Longueur</span><span class='metric-value'>" + chaine(titre_analysis["longueur"]) + " caractères</span></div>"
+    html += "<div class='metric'><span class='metric-label'>Contenu</span><span class='metric-value'>" + titre_analysis["contenu"] + "</span></div>"
+    html += generer_problemes_recommandations_html(titre_analysis)
+    html += "</div>"
+    retourner html
+}
+
+# Section meta description
+fonction generer_section_meta(meta_analysis) {
+    soit html = "<div class='analysis-card'>"
+    html += "<h3>📄 Meta Description</h3>"
+    html += "<div class='metric'><span class='metric-label'>Score</span><span class='metric-value'>" + chaine(meta_analysis["score"]) + "/100</span></div>"
+    html += "<div class='score-bar'><div class='score-fill' style='width: " + chaine(meta_analysis["score"]) + "%'></div></div>"
+    html += "<div class='metric'><span class='metric-label'>Longueur</span><span class='metric-value'>" + chaine(meta_analysis["longueur"]) + " caractères</span></div>"
+    html += "<div class='metric'><span class='metric-label'>Contenu</span><span class='metric-value'>" + meta_analysis["contenu"] + "</span></div>"
+    html += generer_problemes_recommandations_html(meta_analysis)
+    html += "</div>"
+    retourner html
+}
+
+# Section contenu
+fonction generer_section_contenu(contenu_analysis) {
+    soit html = "<div class='analysis-card'>"
+    html += "<h3>📖 Contenu</h3>"
+    html += "<div class='metric'><span class='metric-label'>Score</span><span class='metric-value'>" + chaine(contenu_analysis["score"]) + "/100</span></div>"
+    html += "<div class='score-bar'><div class='score-fill' style='width: " + chaine(contenu_analysis["score"]) + "%'></div></div>"
+    html += "<div class='metric'><span class='metric-label'>Nombre de mots</span><span class='metric-value'>" + chaine(contenu_analysis["nb_mots"]) + "</span></div>"
+    html += "<div class='metric'><span class='metric-label'>Densité mots-clés</span><span class='metric-value'>" + chaine(contenu_analysis["densite_mots_cles"]) + "%</span></div>"
+    html += generer_problemes_recommandations_html(contenu_analysis)
+    html += "</div>"
+    retourner html
+}
+
+# Section structure
+fonction generer_section_structure(structure_analysis) {
+    soit html = "<div class='analysis-card'>"
+    html += "<h3>🏷️ Structure</h3>"
+    html += "<div class='metric'><span class='metric-label'>Score</span><span class='metric-value'>" + chaine(structure_analysis["score"]) + "/100</span></div>"
+    html += "<div class='score-bar'><div class='score-fill' style='width: " + chaine(structure_analysis["score"]) + "%'></div></div>"
+    html += "<div class='metric'><span class='metric-label'>H1</span><span class='metric-value'>" + chaine(structure_analysis["nb_h1"]) + "</span></div>"
+    html += "<div class='metric'><span class='metric-label'>H2</span><span class='metric-value'>" + chaine(structure_analysis["nb_h2"]) + "</span></div>"
+    html += "<div class='metric'><span class='metric-label'>Total headings</span><span class='metric-value'>" + chaine(structure_analysis["total_headings"]) + "</span></div>"
+    html += generer_problemes_recommandations_html(structure_analysis)
+    html += "</div>"
+    retourner html
+}
+
+# Section images
+fonction generer_section_images(images_analysis) {
+    soit html = "<div class='analysis-card'>"
+    html += "<h3>🖼️ Images</h3>"
+    html += "<div class='metric'><span class='metric-label'>Score</span><span class='metric-value'>" + chaine(images_analysis["score"]) + "/100</span></div>"
+    html += "<div class='score-bar'><div class='score-fill' style='width: " + chaine(images_analysis["score"]) + "%'></div></div>"
+    html += "<div class='metric'><span class='metric-label'>Nombre d'images</span><span class='metric-value'>" + chaine(images_analysis["nb_images"]) + "</span></div>"
+    html += "<div class='metric'><span class='metric-label'>Sans attribut alt</span><span class='metric-value'>" + chaine(images_analysis["images_sans_alt"]) + "</span></div>"
+    html += generer_problemes_recommandations_html(images_analysis)
+    html += "</div>"
+    retourner html
+}
+
+# Section liens
+fonction generer_section_liens(liens_analysis) {
+    soit html = "<div class='analysis-card'>"
+    html += "<h3>🔗 Liens</h3>"
+    html += "<div class='metric'><span class='metric-label'>Score</span><span class='metric-value'>" + chaine(liens_analysis["score"]) + "/100</span></div>"
+    html += "<div class='score-bar'><div class='score-fill' style='width: " + chaine(liens_analysis["score"]) + "%'></div></div>"
+    html += "<div class='metric'><span class='metric-label'>Nombre de liens</span><span class='metric-value'>" + chaine(liens_analysis["nb_liens"]) + "</span></div>"
+    html += generer_problemes_recommandations_html(liens_analysis)
+    html += "</div>"
+    retourner html
+}
+
+# Section technique
+fonction generer_section_technique(technique_analysis) {
+    soit html = "<div class='analysis-card'>"
+    html += "<h3>⚙️ Technique</h3>"
+    html += "<div class='metric'><span class='metric-label'>Score</span><span class='metric-value'>" + chaine(technique_analysis["score"]) + "/100</span></div>"
+    html += "<div class='score-bar'><div class='score-fill' style='width: " + chaine(technique_analysis["score"]) + "%'></div></div>"
+    html += "<div class='metric'><span class='metric-label'>Taille HTML</span><span class='metric-value'>" + chaine(technique_analysis["taille_html"]) + " octets</span></div>"
+    html += generer_problemes_recommandations_html(technique_analysis)
+    html += "</div>"
+    retourner html
+}
+
+# Génération des problèmes et recommandations
+fonction generer_problemes_recommandations_html(analysis) {
+    soit html = ""
+    
+    si (longueur(analysis["problemes"]) > 0) {
+        html += "<div class='problems'><h4>Problèmes détectés</h4><ul>"
+        pour probleme dans analysis["problemes"] {
+            html += "<li>" + probleme + "</li>"
+        }
+        html += "</ul></div>"
+    }
+    
+    si (longueur(analysis["recommandations"]) > 0) {
+        html += "<div class='recommendations'><h4>Recommandations</h4><ul>"
+        pour recommandation dans analysis["recommandations"] {
+            html += "<li>" + recommandation + "</li>"
+        }
+        html += "</ul></div>"
+    }
+    
+    retourner html
+}
+
+# Fonction utilitaire pour le label du score
+fonction obtenir_label_score(score) {
+    si (score >= 80) {
+        retourner "Excellent ✨"
+    } sinon si (score >= 60) {
+        retourner "Bon 👍"
+    } sinon si (score >= 40) {
+        retourner "Moyen 📊"
+    } sinon {
+        retourner "À améliorer 🔧"
+    }
+}
+
+# Affichage d'un aperçu du HTML généré (VERSION CORRIGÉE)
+fonction afficher_apercu_html(html) {
+    imprimer("🎨 === APERÇU DU RAPPORT HTML ===")
+    imprimer("📄 Taille totale:", longueur(html), "caractères")
+    
+    # Extraire et afficher le titre (version simplifiée)
+    si (contient_texte_simple(html, "<title>")) {
+        soit parties_titre = diviser(html, "<title>")
+        si (longueur(parties_titre) >= 2) {
+            soit fin_titre = diviser(parties_titre[1], "</title>")
+            si (longueur(fin_titre) >= 1) {
+                imprimer("📝 Titre:", fin_titre[0])
+            }
+        }
+    }
+    
+    imprimer("✅ HTML généré avec succès!")
+    imprimer("💡 Dans une version complète, ce fichier serait sauvegardé dans 'rapports/'")
+}
+
+# Fonction utilitaire simple pour éviter les conflits
+fonction contient_texte_simple(texte_source, recherche) {
+    retourner texte_source != remplacer(texte_source, recherche, "")
+}

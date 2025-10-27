@@ -1,0 +1,42 @@
+# quick_test.fia
+# Test rapide de démonstration
+
+importer "seo_scraper.fia" comme scraper
+importer "seo_analyzer.fia" comme analyzer
+importer "seo_reporter.fia" comme reporter
+
+imprimer("⚡ === TEST RAPIDE F-IA SEO ===")
+
+# URLs de test
+soit urls_test = [
+    "https://example.com/seo-page",
+    "https://www.google.com",
+    "https://github.com/Jimmyjoe13/f-ia"
+]
+
+pour url dans urls_test {
+    imprimer("🔍 Test:", url)
+    soit donnees = scraper.extraire_contenu_seo(url)
+    
+    si (donnees["success"]) {
+        soit analyse = analyzer.analyser_seo(donnees)
+        imprimer("📊 Score:", analyse["score_global"], "/100 -", obtenir_label_score_simple(analyse["score_global"]))
+    } sinon {
+        imprimer("❌ Erreur")
+    }
+    imprimer("")
+}
+
+fonction obtenir_label_score_simple(score) {
+    si (score >= 80) {
+        retourner "Excellent ✨"
+    } sinon si (score >= 60) {
+        retourner "Bon 👍"
+    } sinon si (score >= 40) {
+        retourner "Moyen 📊"
+    } sinon {
+        retourner "À améliorer 🔧"
+    }
+}
+
+imprimer("✅ Test rapide terminé!")

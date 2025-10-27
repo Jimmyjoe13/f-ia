@@ -13,6 +13,58 @@ import json
 import os
 from errors import RuntimeError
 
+# ===== NOUVELLE SECTION : WEB SCRAPING =====
+def faire_requete_web(url):
+    """Fait une vraie requête HTTP et retourne le contenu HTML"""
+    try:
+        import requests
+        
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'fr-FR,fr;q=0.9,en;q=0.8',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1'
+        }
+        
+        print(f"🌐 [WEB] Requête HTTP vers: {url}")
+        response = requests.get(url, headers=headers, timeout=15, allow_redirects=True)
+        
+        print(f"✅ [WEB] Requête réussie - Status: {response.status_code}")
+        print(f"📏 [WEB] Taille HTML: {len(response.text)} caractères")
+        
+        return {
+            "html": response.text,
+            "status": response.status_code,
+            "url": response.url,
+            "headers": dict(response.headers),
+            "encoding": response.encoding or 'utf-8'
+        }
+        
+    except ImportError:
+        return {
+            "erreur": "Module 'requests' non installé. Exécutez: pip install requests"
+        }
+    except requests.exceptions.Timeout:
+        return {
+            "erreur": f"Timeout lors de l'accès à {url} (15 secondes dépassées)"
+        }
+    except requests.exceptions.ConnectionError:
+        return {
+            "erreur": f"Impossible de se connecter à {url}"
+        }
+    except requests.exceptions.RequestException as e:
+        return {
+            "erreur": f"Erreur de requête HTTP: {str(e)}"
+        }
+    except Exception as e:
+        return {
+            "erreur": f"Erreur inattendue lors de la requête web: {str(e)}"
+        }
+
+# ===== CODE ML EXISTANT (INCHANGÉ) =====
+
 class MLBackend:
     """Backend Machine Learning pour F-IA avec scikit-learn natif"""
     
@@ -267,14 +319,19 @@ class MLBackend:
 # Instance globale du backend ML
 ml_backend = MLBackend()
 
-# Fonctions exposées à F-IA
+# Fonctions exposées à F-IA (ML + WEB)
 def _appeler_python_ml(nom_fonction, args):
-    """Interface entre F-IA et le backend ML Python"""
+    """Interface entre F-IA et le backend ML/Web Python"""
     try:
+        # Fonction WEB
+        if nom_fonction == "faire_requete_web":
+            return faire_requete_web(*args)
+        
+        # Fonctions ML existantes
         if hasattr(ml_backend, nom_fonction):
             method = getattr(ml_backend, nom_fonction)
             return method(*args)
         else:
-            raise RuntimeError(f"Fonction ML '{nom_fonction}' non trouvée")
+            raise RuntimeError(f"Fonction '{nom_fonction}' non trouvée. Fonctions disponibles: {list(dir(ml_backend))}")
     except Exception as e:
-        raise RuntimeError(f"Erreur ML: {e}")
+        raise RuntimeError(f"Erreur backend: {e}")

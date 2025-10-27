@@ -1,0 +1,26 @@
+importe ia
+
+fonction obtenir_reponse(question) {
+    # Simuler une réponse basée sur l'IA
+    soit modele_ia = ia.reseau_neuronal([10, 5, 1], "relu")
+    soit donnees_question = [longueur(question)]
+    soit prediction = ia.prediction(modele_ia, [donnees_question])
+    soit reponse = ""
+
+    si (prediction[0] == 0) {
+        reponse = "Je suis là pour vous aider avec vos questions."
+    } sinon si (prediction[0] == 1) {
+        reponse = "Pouvez-vous préciser votre demande ?"
+    } sinon {
+        reponse = "Désolé, je ne comprends pas bien."
+    }
+    retourner reponse
+}
+
+imprimer("Chatbot : Bonjour ! Posez-moi une question.")
+tant que vrai {
+    imprimer("Vous : ")
+    soit question_utilisateur = lire_texte()
+    soit reponse_bot = obtenir_reponse(question_utilisateur)
+    imprimer("Chatbot : ", reponse_bot)
+}

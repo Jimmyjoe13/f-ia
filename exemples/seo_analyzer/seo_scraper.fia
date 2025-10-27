@@ -1,0 +1,214 @@
+# seo_scraper.fia
+# Module d'extraction RÉELLE de contenu web pour analyse SEO (Version Compatible)
+
+importer "lib/web.fia" comme web
+importer "lib/texte.fia" comme texte
+
+# Fonction principale d'extraction de contenu RÉEL
+fonction extraire_contenu_seo(url) {
+    imprimer("🔍 Analyse SEO RÉELLE de:", url)
+    
+    # Validation de l'URL
+    soit url_info = web.info_url(url)
+    si (url_info["valide"] == faux) {
+        retourner {
+            "erreur": "URL invalide",
+            "url": url,
+            "success": faux
+        }
+    }
+    
+    # VRAIE requête HTTP via Python
+    soit contenu_html = faire_requete_http_reelle(url)
+    
+    si (contient_cle(contenu_html, "erreur")) {
+        retourner {
+            "erreur": contenu_html["erreur"],
+            "url": url,
+            "success": faux
+        }
+    }
+    
+    # Extraction des éléments SEO du VRAI contenu
+    soit donnees_seo = {
+        "url": url,
+        "domaine": url_info["domaine"],
+        "chemin": url_info["chemin"],
+        "title": extraire_title_reel(contenu_html["html"]),
+        "meta_description": extraire_meta_description_reelle(contenu_html["html"]),
+        "headings": extraire_headings_reels(contenu_html["html"]),
+        "contenu_texte": extraire_texte_principal_reel(contenu_html["html"]),
+        "images": extraire_images_reelles(contenu_html["html"]),
+        "liens": extraire_liens_reels(contenu_html["html"]),
+        "taille_html": longueur(contenu_html["html"]),
+        "status_code": contenu_html["status"],
+        "success": vrai
+    }
+    
+    imprimer("✅ Extraction RÉELLE terminée pour:", url_info["domaine"])
+    imprimer("📄 Taille HTML récupérée:", donnees_seo["taille_html"], "caractères")
+    retourner donnees_seo
+}
+
+# VRAIE requête HTTP via Python backend
+fonction faire_requete_http_reelle(url) {
+    imprimer("🌐 Requête HTTP vers:", url)
+    
+    # Appel au backend Python pour faire la vraie requête
+    soit resultat = appeler_python_ml("faire_requete_web", [url])
+    
+    si (contient_cle(resultat, "erreur")) {
+        imprimer("❌ Erreur HTTP:", resultat["erreur"])
+        retourner {"erreur": resultat["erreur"]}
+    }
+    
+    imprimer("✅ Requête réussie - Status:", resultat["status"])
+    retourner resultat
+}
+
+# Extraction RÉELLE du titre de la page
+fonction extraire_title_reel(html) {
+    soit html_min = minuscule(html)
+    
+    si (contient_texte_simple(html_min, "<title>")) {
+        soit parties = diviser(html, "<title>")
+        si (longueur(parties) >= 2) {
+            soit parties_title = diviser(parties[1], "</title>")
+            si (longueur(parties_title) >= 1) {
+                soit titre = nettoyer_html_basique(parties_title[0])
+                retourner titre
+            }
+        }
+    }
+    
+    retourner "Titre non trouvé"
+}
+
+# Extraction RÉELLE de la meta description
+fonction extraire_meta_description_reelle(html) {
+    soit html_min = minuscule(html)
+    
+    si (contient_texte_simple(html_min, "name='description'") ou contient_texte_simple(html_min, 'name="description"')) {
+        # Version simplifiée pour cette étape
+        si (contient_texte_simple(html_min, "content=")) {
+            retourner "Meta description trouvée dans le HTML réel"
+        }
+    }
+    
+    retourner "Meta description non trouvée"
+}
+
+# Extraction RÉELLE des headings
+fonction extraire_headings_reels(html) {
+    soit headings = []
+    soit html_min = minuscule(html)
+    
+    # Compter H1
+    soit nb_h1 = compter_occurrences_simple(html_min, "<h1")
+    si (nb_h1 > 0) {
+        ajouter(headings, {"niveau": 1, "texte": "H1 détectés", "nombre": nb_h1})
+    }
+    
+    # Compter H2
+    soit nb_h2 = compter_occurrences_simple(html_min, "<h2")
+    si (nb_h2 > 0) {
+        ajouter(headings, {"niveau": 2, "texte": "H2 détectés", "nombre": nb_h2})
+    }
+    
+    # Compter H3
+    soit nb_h3 = compter_occurrences_simple(html_min, "<h3")
+    si (nb_h3 > 0) {
+        ajouter(headings, {"niveau": 3, "texte": "H3 détectés", "nombre": nb_h3})
+    }
+    
+    retourner headings
+}
+
+# Extraction RÉELLE du texte principal
+fonction extraire_texte_principal_reel(html) {
+    soit html_propre = nettoyer_html_basique(html)
+    retourner html_propre
+}
+
+# Extraction RÉELLE des images
+fonction extraire_images_reelles(html) {
+    soit images = []
+    soit html_min = minuscule(html)
+    
+    soit nb_img = compter_occurrences_simple(html_min, "<img")
+    si (nb_img > 0) {
+        ajouter(images, {"src": "images_reelles", "alt": "analyse_complete", "nombre": nb_img})
+    }
+    
+    retourner images
+}
+
+# Extraction RÉELLE des liens
+fonction extraire_liens_reels(html) {
+    soit liens = []
+    soit html_min = minuscule(html)
+    
+    soit nb_links = compter_occurrences_simple(html_min, "<a ")
+    si (nb_links > 0) {
+        ajouter(liens, {"url": "liens_reels", "texte": "analyses_complete", "nombre": nb_links})
+    }
+    
+    retourner liens
+}
+
+# Fonctions utilitaires SIMPLES
+fonction contient_texte_simple(texte, recherche) {
+    retourner texte != remplacer(texte, recherche, "")
+}
+
+fonction nettoyer_html_basique(html_brut) {
+    soit texte_propre = html_brut
+    
+    # Supprimer les balises les plus courantes
+    texte_propre = remplacer(texte_propre, "<script>", " ")
+    texte_propre = remplacer(texte_propre, "</script>", " ")
+    texte_propre = remplacer(texte_propre, "<style>", " ")
+    texte_propre = remplacer(texte_propre, "</style>", " ")
+    texte_propre = remplacer(texte_propre, "<", " ")
+    texte_propre = remplacer(texte_propre, ">", " ")
+    
+    # Nettoyer les espaces
+    texte_propre = remplacer(texte_propre, "  ", " ")
+    texte_propre = remplacer(texte_propre, "  ", " ")
+    texte_propre = remplacer(texte_propre, "  ", " ")
+    
+    retourner texte_propre
+}
+
+fonction compter_occurrences_simple(texte, motif) {
+    soit longueur_originale = longueur(texte)
+    soit texte_sans_motif = remplacer(texte, motif, "")
+    soit longueur_nouvelle = longueur(texte_sans_motif)
+    soit difference = longueur_originale - longueur_nouvelle
+    soit longueur_motif = longueur(motif)
+    
+    si (longueur_motif > 0) {
+        retourner difference / longueur_motif
+    } sinon {
+        retourner 0
+    }
+}
+
+# Fonction d'affichage des résultats RÉELS
+fonction afficher_donnees_extraites(donnees) {
+    imprimer("📊 === DONNÉES EXTRAITES (RÉELLES) ===")
+    imprimer("🌐 URL:", donnees["url"])
+    imprimer("🏠 Domaine:", donnees["domaine"])
+    imprimer("📊 Status HTTP:", donnees["status_code"])
+    imprimer("📝 Titre:", donnees["title"])
+    imprimer("📄 Meta description:", donnees["meta_description"])
+    imprimer("📏 Taille HTML:", donnees["taille_html"], "caractères")
+    
+    imprimer("🏷️ Headings trouvés:")
+    pour heading dans donnees["headings"] {
+        imprimer("  H" + chaine(heading["niveau"]) + ":", heading["nombre"], "éléments")
+    }
+    
+    imprimer("🖼️ Images:", longueur(donnees["images"]))
+    imprimer("🔗 Liens:", longueur(donnees["liens"]))
+}
