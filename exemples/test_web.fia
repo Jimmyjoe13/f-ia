@@ -1,0 +1,155 @@
+# exemples/test_web.fia
+# Test du module lib/web.fia
+
+importer "lib/web.fia" comme web
+
+imprimer("=== TEST DU MODULE WEB ===")
+imprimer()
+
+# Test des requêtes HTTP simulées
+imprimer("=== REQUÊTES HTTP ===")
+soit url_test = "https://api.exemple.com/users"
+
+imprimer("Test requête GET:")
+soit reponse_get = web.requete_get(url_test)
+imprimer("  Status:", reponse_get["status"])
+imprimer("  Method:", reponse_get["method"])
+imprimer("  Success:", reponse_get["success"])
+imprimer("  Body:", reponse_get["body"])
+imprimer()
+
+imprimer("Test requête POST:")
+soit donnees_post = {"nom": "Alice", "email": "alice@exemple.com"}
+soit reponse_post = web.requete_post(url_test, donnees_post)
+imprimer("  Status:", reponse_post["status"])
+imprimer("  Method:", reponse_post["method"])
+imprimer("  Body:", reponse_post["body"])
+imprimer()
+
+imprimer("Test requête PUT:")
+soit donnees_put = {"nom": "Alice Dupont", "age": 30}
+soit reponse_put = web.requete_put(url_test + "/1", donnees_put)
+imprimer("  Status:", reponse_put["status"])
+imprimer("  Method:", reponse_put["method"])
+imprimer()
+
+imprimer("Test requête DELETE:")
+soit reponse_delete = web.requete_delete(url_test + "/1")
+imprimer("  Status:", reponse_delete["status"])
+imprimer("  Method:", reponse_delete["method"])
+imprimer()
+
+# Test de validation et normalisation d'URLs
+imprimer("=== VALIDATION ET NORMALISATION D'URLs ===")
+soit urls_test = [
+    "https://www.exemple.com",
+    "http://localhost:3000",
+    "www.github.com/user/repo",
+    "exemple.com/api",
+    "invalide",
+    "ftp://serveur.com"
+]
+
+pour url dans urls_test {
+    imprimer("URL:", url)
+    imprimer("  Valide:", web.valider_url(url))
+    imprimer("  Normalisée:", web.normaliser_url(url))
+    imprimer("  Domaine:", web.extraire_domaine(url))
+    imprimer("  Chemin:", web.extraire_chemin(url))
+    imprimer()
+}
+
+# Test de construction d'URLs
+imprimer("=== CONSTRUCTION D'URLs ===")
+soit url_construite = web.construire_url("https", "api.exemple.com", "/v1/users")
+imprimer("URL construite:", url_construite)
+
+soit parametres = {"page": 1, "limit": 10, "sort": "name"}
+soit url_avec_params = web.ajouter_parametres(url_construite, parametres)
+imprimer("Avec paramètres:", url_avec_params)
+imprimer()
+
+# Test d'analyse des codes de statut
+imprimer("=== ANALYSE DES CODES DE STATUT ===")
+soit status_codes = [200, 201, 301, 404, 500]
+pour status dans status_codes {
+    soit analyse = web.analyser_status(status)
+    imprimer("Status", status + ":")
+    imprimer("  Type:", analyse["type"])
+    imprimer("  Message:", analyse["message"])
+    imprimer("  Valide:", analyse["valide"])
+}
+imprimer()
+
+# Test d'encodage/décodage d'URL
+imprimer("=== ENCODAGE/DÉCODAGE D'URL ===")
+soit texte_original = "Hello World! Café & thé?"
+imprimer("Texte original:", texte_original)
+soit texte_encode = web.encoder_url(texte_original)
+imprimer("Encodé:", texte_encode)
+soit texte_decode = web.decoder_url(texte_encode)
+imprimer("Décodé:", texte_decode)
+imprimer()
+
+# Test du client API
+imprimer("=== CLIENT API ===")
+soit client = web.creer_client_api("https://jsonplaceholder.typicode.com")
+imprimer("Client créé pour:", client["url_base"])
+imprimer("Headers par défaut:", client["headers"])
+imprimer("Timeout:", client["timeout"])
+
+imprimer("Test d'appels API:")
+soit appel_get = web.appel_api(client, "/posts/1", "GET", nul)
+imprimer("  GET /posts/1 - Status:", appel_get["status"])
+
+soit nouvelles_donnees = {"title": "Mon article", "body": "Contenu..."}
+soit appel_post = web.appel_api(client, "/posts", "POST", nouvelles_donnees)
+imprimer("  POST /posts - Status:", appel_post["status"])
+
+soit appel_invalide = web.appel_api(client, "/test", "PATCH", nul)
+imprimer("  PATCH /test - Success:", appel_invalide["success"])
+si (appel_invalide["success"] == faux) {
+    imprimer("  Erreur:", appel_invalide["error"])
+}
+imprimer()
+
+# Test d'analyse complète d'URL
+imprimer("=== ANALYSE COMPLÈTE D'URL ===")
+soit url_complexe = "https://api.github.com/repos/user/project/issues"
+soit info = web.info_url(url_complexe)
+imprimer("URL analysée:", url_complexe)
+imprimer("  Originale:", info["url_originale"])
+imprimer("  Normalisée:", info["url_normalisee"])
+imprimer("  Domaine:", info["domaine"])
+imprimer("  Chemin:", info["chemin"])
+imprimer("  Valide:", info["valide"])
+imprimer()
+
+# Test de vérification JSON
+imprimer("=== VÉRIFICATION JSON ===")
+soit reponse_json = {
+    "headers": {"Content-Type": "application/json; charset=utf-8"},
+    "body": '{"data": "test"}'
+}
+soit reponse_html = {
+    "headers": {"Content-Type": "text/html"},
+    "body": "<html>Test</html>"
+}
+
+imprimer("Réponse avec JSON:", web.est_reponse_json(reponse_json))
+imprimer("Réponse avec HTML:", web.est_reponse_json(reponse_html))
+imprimer()
+
+# Test de simulation de webhook
+imprimer("=== SIMULATION WEBHOOK ===")
+soit webhook_data = {"user_id": 123, "action": "created", "resource": "post"}
+soit webhook = web.simuler_webhook("post.created", webhook_data)
+imprimer("Webhook simulé:")
+imprimer("  Event:", webhook["event"])
+imprimer("  Timestamp:", webhook["timestamp"])
+imprimer("  Source:", webhook["source"])
+imprimer("  Processed:", webhook["processed"])
+imprimer("  Data:", webhook["data"])
+
+imprimer()
+imprimer("✅ Tests du module web terminés !")

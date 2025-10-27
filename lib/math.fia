@@ -53,5 +53,9 @@ fonction arrondir_decimal(nombre, decimales) {
     retourner arrondir(nombre, decimales)
 }
 
+fonction arrondir_decimal(nombre, decimales) {
+    # Fonction d'arrondi locale au module math
+    retourner arrondir(nombre, decimales)
+}
 
 imprimer("✅ Module math.fia chargé - Fonctions disponibles: carre, cube, racine_carree, factorielle, maximum, minimum, absolue")

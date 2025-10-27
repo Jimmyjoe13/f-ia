@@ -1,0 +1,323 @@
+# lib/web.fia
+# Module pour les requêtes HTTP et manipulation web
+
+# Fonctions utilitaires de base
+fonction contient_texte(texte, recherche) {
+    # Fonction utilitaire réutilisée
+    retourner texte != remplacer(texte, recherche, "")
+}
+
+# Simulation de requêtes HTTP (pour l'instant)
+fonction requete_get(url) {
+    # Simule une requête GET HTTP
+    # Note: En réalité, cela nécessiterait une implémentation Python backend
+    retourner {
+        "status": 200,
+        "url": url,
+        "method": "GET",
+        "headers": {"Content-Type": "application/json"},
+        "body": '{"message": "Simulation de réponse GET pour ' + url + '"}',
+        "success": vrai
+    }
+}
+
+fonction requete_post(url, donnees) {
+    # Simule une requête POST HTTP
+    retourner {
+        "status": 201,
+        "url": url,
+        "method": "POST",
+        "headers": {"Content-Type": "application/json"},
+        "body": '{"message": "Données POST reçues", "data": "' + chaine(donnees) + '"}',
+        "success": vrai
+    }
+}
+
+fonction requete_put(url, donnees) {
+    # Simule une requête PUT HTTP
+    retourner {
+        "status": 200,
+        "url": url,
+        "method": "PUT",
+        "headers": {"Content-Type": "application/json"},
+        "body": '{"message": "Données PUT mises à jour", "data": "' + chaine(donnees) + '"}',
+        "success": vrai
+    }
+}
+
+fonction requete_delete(url) {
+    # Simule une requête DELETE HTTP
+    retourner {
+        "status": 204,
+        "url": url,
+        "method": "DELETE",
+        "headers": {},
+        "body": "",
+        "success": vrai
+    }
+}
+
+# Fonctions de validation et formatage d'URLs
+fonction valider_url(url) {
+    # Valide une URL de manière basique
+    si (longueur(url) < 7) {
+        retourner faux
+    }
+    
+    retourner contient_texte(url, "http://") ou contient_texte(url, "https://")
+}
+
+fonction normaliser_url(url) {
+    # Normalise une URL
+    soit url_propre = url
+    
+    # Supprimer les espaces
+    url_propre = remplacer(url_propre, " ", "")
+    
+    # Ajouter http:// si pas de protocole
+    si (contient_texte(url_propre, "://") == faux) {
+        si (contient_texte(url_propre, "localhost") ou contient_texte(url_propre, "127.0.0.1")) {
+            url_propre = "http://" + url_propre
+        } sinon {
+            url_propre = "https://" + url_propre
+        }
+    }
+    
+    retourner url_propre
+}
+
+fonction extraire_domaine(url) {
+    # Extrait le domaine d'une URL
+    soit url_sans_protocole = url
+    
+    # Supprimer le protocole
+    si (contient_texte(url, "://")) {
+        soit parties = diviser(url, "://")
+        si (longueur(parties) >= 2) {
+            url_sans_protocole = parties[1]
+        }
+    }
+    
+    # Prendre seulement la partie avant le premier /
+    soit parties_chemin = diviser(url_sans_protocole, "/")
+    si (longueur(parties_chemin) > 0) {
+        retourner parties_chemin[0]
+    }
+    
+    retourner url_sans_protocole
+}
+
+fonction extraire_chemin(url) {
+    # Extrait le chemin d'une URL
+    soit url_sans_protocole = url
+    
+    # Supprimer le protocole
+    si (contient_texte(url, "://")) {
+        soit parties = diviser(url, "://")
+        si (longueur(parties) >= 2) {
+            url_sans_protocole = parties[1]
+        }
+    }
+    
+    # Trouver le premier / pour le chemin
+    soit parties_chemin = diviser(url_sans_protocole, "/")
+    si (longueur(parties_chemin) > 1) {
+        soit chemin = ""
+        pour i dans [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] {
+            si (i < longueur(parties_chemin)) {
+                si (i > 1) {
+                    chemin += "/"
+                }
+                chemin += parties_chemin[i]
+            }
+        }
+        retourner "/" + chemin
+    }
+    
+    retourner "/"
+}
+
+# Fonctions de construction d'URLs
+fonction construire_url(protocole, domaine, chemin) {
+    # Construit une URL complète
+    soit url = protocole + "://" + domaine
+    
+    si (longueur(chemin) > 0) {
+        si (contient_texte(chemin, "/") == faux) {
+            chemin = "/" + chemin
+        }
+        url += chemin
+    }
+    
+    retourner url
+}
+
+fonction ajouter_parametres(url, parametres) {
+    # Ajoute des paramètres de requête à une URL
+    soit url_complete = url
+    
+    si (longueur(parametres) > 0) {
+        # Vérifier s'il y a déjà des paramètres
+        si (contient_texte(url, "?")) {
+            url_complete += "&"
+        } sinon {
+            url_complete += "?"
+        }
+        
+        # Ajouter chaque paramètre
+        soit premiers_param = vrai
+        pour cle dans cles(parametres) {
+            si (premiers_param == faux) {
+                url_complete += "&"
+            }
+            url_complete += cle + "=" + chaine(parametres[cle])
+            premiers_param = faux
+        }
+    }
+    
+    retourner url_complete
+}
+
+# Fonctions de gestion de réponses
+fonction analyser_status(status) {
+    # Analyse le code de statut HTTP
+    si (status >= 200 et status < 300) {
+        retourner {
+            "type": "success",
+            "message": "Succès",
+            "valide": vrai
+        }
+    } sinon si (status >= 300 et status < 400) {
+        retourner {
+            "type": "redirect",
+            "message": "Redirection",
+            "valide": vrai
+        }
+    } sinon si (status >= 400 et status < 500) {
+        retourner {
+            "type": "client_error",
+            "message": "Erreur client",
+            "valide": faux
+        }
+    } sinon si (status >= 500) {
+        retourner {
+            "type": "server_error",
+            "message": "Erreur serveur",
+            "valide": faux
+        }
+    } sinon {
+        retourner {
+            "type": "unknown",
+            "message": "Statut inconnu",
+            "valide": faux
+        }
+    }
+}
+
+fonction est_reponse_json(reponse) {
+    # Vérifie si la réponse est du JSON
+    si (contient_cle(reponse, "headers")) {
+        soit headers = reponse["headers"]
+        si (contient_cle(headers, "Content-Type")) {
+            soit content_type = headers["Content-Type"]
+            retourner contient_texte(content_type, "json")
+        }
+    }
+    retourner faux
+}
+
+# Fonctions de formatage et encodage
+fonction encoder_url(texte) {
+    # Encode les caractères spéciaux pour URL (version basique)
+    soit resultat = texte
+    resultat = remplacer(resultat, " ", "%20")
+    resultat = remplacer(resultat, "!", "%21")
+    resultat = remplacer(resultat, "#", "%23")
+    resultat = remplacer(resultat, "$", "%24")
+    resultat = remplacer(resultat, "&", "%26")
+    resultat = remplacer(resultat, "'", "%27")
+    resultat = remplacer(resultat, "(", "%28")
+    resultat = remplacer(resultat, ")", "%29")
+    resultat = remplacer(resultat, "+", "%2B")
+    resultat = remplacer(resultat, ",", "%2C")
+    resultat = remplacer(resultat, "/", "%2F")
+    resultat = remplacer(resultat, ":", "%3A")
+    resultat = remplacer(resultat, "=", "%3D")
+    resultat = remplacer(resultat, "?", "%3F")
+    resultat = remplacer(resultat, "@", "%40")
+    retourner resultat
+}
+
+fonction decoder_url(texte_encode) {
+    # Décode les caractères URL (version basique)
+    soit resultat = texte_encode
+    resultat = remplacer(resultat, "%20", " ")
+    resultat = remplacer(resultat, "%21", "!")
+    resultat = remplacer(resultat, "%23", "#")
+    resultat = remplacer(resultat, "%24", "$")
+    resultat = remplacer(resultat, "%26", "&")
+    resultat = remplacer(resultat, "%27", "'")
+    resultat = remplacer(resultat, "%28", "(")
+    resultat = remplacer(resultat, "%29", ")")
+    resultat = remplacer(resultat, "%2B", "+")
+    resultat = remplacer(resultat, "%2C", ",")
+    resultat = remplacer(resultat, "%2F", "/")
+    resultat = remplacer(resultat, "%3A", ":")
+    resultat = remplacer(resultat, "%3D", "=")
+    resultat = remplacer(resultat, "%3F", "?")
+    resultat = remplacer(resultat, "%40", "@")
+    retourner resultat
+}
+
+# Fonctions utilitaires web
+fonction creer_client_api(url_base) {
+    # Crée un client API réutilisable
+    retourner {
+        "url_base": url_base,
+        "headers": {"Content-Type": "application/json"},
+        "timeout": 30
+    }
+}
+
+fonction appel_api(client, endpoint, methode, donnees) {
+    # Effectue un appel API avec un client
+    soit url_complete = client["url_base"] + endpoint
+    
+    si (methode == "GET") {
+        retourner requete_get(url_complete)
+    } sinon si (methode == "POST") {
+        retourner requete_post(url_complete, donnees)
+    } sinon si (methode == "PUT") {
+        retourner requete_put(url_complete, donnees)
+    } sinon si (methode == "DELETE") {
+        retourner requete_delete(url_complete)
+    } sinon {
+        retourner {
+            "status": 400,
+            "success": faux,
+            "error": "Méthode HTTP non supportée: " + methode
+        }
+    }
+}
+
+fonction info_url(url) {
+    # Analyse complète d'une URL
+    retourner {
+        "url_originale": url,
+        "url_normalisee": normaliser_url(url),
+        "domaine": extraire_domaine(url),
+        "chemin": extraire_chemin(url),
+        "valide": valider_url(normaliser_url(url))
+    }
+}
+
+fonction simuler_webhook(nom_event, donnees) {
+    # Simule la réception d'un webhook
+    retourner {
+        "event": nom_event,
+        "timestamp": "2025-10-26T20:08:00Z",
+        "data": donnees,
+        "source": "F-IA Webhook Simulator",
+        "processed": vrai
+    }
+}

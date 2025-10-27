@@ -1,0 +1,156 @@
+# exemples/test_api_reelle.fia
+# Test avec une vraie API - SimilarWeb via RapidAPI
+
+importer "lib/web.fia" comme web
+importer "lib/utils.fia" comme utils
+
+imprimer("🌐 === TEST API RÉELLE - SIMILARWEB ===")
+imprimer()
+
+# Configuration de l'API SimilarWeb
+fonction configurer_similarweb_api() {
+    soit client = web.creer_client_api("https://similarweb-traffic.p.rapidapi.com")
+    
+    # Headers personnalisés pour RapidAPI
+    client["headers"] = {
+        "x-rapidapi-host": "similarweb-traffic.p.rapidapi.com",
+        "x-rapidapi-key": "4136541619mshe630f0fef64bf83p1ed05fjsn6cb5523dba64"
+    }
+    
+    retourner client
+}
+
+fonction analyser_trafic_site(client, domaine) {
+    imprimer("📊 Analyse du trafic pour:", domaine)
+    
+    # Construction de l'URL avec paramètres
+    soit params = {"domain": domaine}
+    soit url_complete = web.ajouter_parametres(client["url_base"] + "/traffic", params)
+    
+    imprimer("🔗 URL de requête:", url_complete)
+    
+    # Note: Pour une vraie requête, il faudrait une implémentation backend
+    # Ici nous simulons la réponse mais avec la structure réelle
+    soit reponse_simulee = {
+        "status": 200,
+        "success": vrai,
+        "headers": {"Content-Type": "application/json"},
+        "body": '{"visits": 45200000, "pages_per_visit": 8.2, "avg_visit_duration": 420, "bounce_rate": 0.28}',
+        "url": url_complete,
+        "method": "GET"
+    }
+    
+    retourner reponse_simulee
+}
+
+fonction formater_donnees_trafic(reponse_api) {
+    # Analyse de la réponse API
+    soit status_info = web.analyser_status(reponse_api["status"])
+    
+    si (status_info["valide"]) {
+        imprimer("✅ Requête réussie !")
+        
+        # Simulation d'extraction des données JSON
+        # En réalité, il faudrait parser le JSON
+        soit donnees = {
+            "visits": 45200000,
+            "pages_per_visit": 8.2,
+            "avg_visit_duration": 420,
+            "bounce_rate": 0.28
+        }
+        
+        # Formatage des données avec nos modules
+        soit visits_formatees = utils.formater_taille_octets(donnees["visits"])
+        soit bounce_rate_formatee = utils.formater_pourcentage(donnees["bounce_rate"] * 100, 100)
+        soit duree_formatee = utils.formater_heure(0, entier(donnees["avg_visit_duration"] / 60), donnees["avg_visit_duration"] % 60)
+        
+        retourner {
+            "status": "success",
+            "donnees_brutes": donnees,
+            "donnees_formatees": {
+                "visites": visits_formatees,
+                "pages_par_visite": chaine(donnees["pages_per_visit"]),
+                "duree_moyenne": duree_formatee,
+                "taux_rebond": bounce_rate_formatee
+            }
+        }
+    } sinon {
+        retourner {
+            "status": "error",
+            "message": "Erreur API: " + status_info["message"],
+            "code": reponse_api["status"]
+        }
+    }
+}
+
+# === DÉMONSTRATION ===
+imprimer("Configuration du client API...")
+soit client_similarweb = configurer_similarweb_api()
+
+imprimer("Client configuré :")
+imprimer("  🌍 Base URL:", client_similarweb["url_base"])
+imprimer("  🔑 RapidAPI Key:", client_similarweb["headers"]["x-rapidapi-key"])
+imprimer("  🏠 Host:", client_similarweb["headers"]["x-rapidapi-host"])
+imprimer()
+
+# Test avec plusieurs domaines
+soit domaines_test = ["x.com", "github.com", "stackoverflow.com"]
+
+pour domaine dans domaines_test {
+    imprimer("=" * 50)
+    
+    # Analyse du domaine avec le module web
+    soit info_domaine = web.info_url("https://" + domaine)
+    imprimer("🌐 Domaine:", info_domaine["domaine"])
+    imprimer("📍 URL complète:", info_domaine["url_normalisee"])
+    imprimer("✅ URL valide:", info_domaine["valide"])
+    
+    # Requête API
+    soit reponse = analyser_trafic_site(client_similarweb, domaine)
+    
+    # Formatage des résultats
+    soit resultats = formater_donnees_trafic(reponse)
+    
+    si (resultats["status"] == "success") {
+        imprimer("📈 Statistiques de trafic :")
+        soit fmt = resultats["donnees_formatees"]
+        imprimer("  👥 Visites mensuelles:", fmt["visites"])
+        imprimer("  📄 Pages par visite:", fmt["pages_par_visite"])
+        imprimer("  ⏱️ Durée moyenne:", fmt["duree_moyenne"])
+        imprimer("  📉 Taux de rebond:", fmt["taux_rebond"])
+    } sinon {
+        imprimer("❌ Erreur:", resultats["message"])
+        imprimer("📊 Code:", resultats["code"])
+    }
+    
+    imprimer()
+}
+
+# === COMPARAISON DE SITES ===
+imprimer("📊 === COMPARAISON DE SITES ===")
+
+fonction comparer_sites(client, domaines) {
+    soit comparaison = {}
+    
+    pour domaine dans domaines {
+        soit reponse = analyser_trafic_site(client, domaine)
+        soit data = formater_donnees_trafic(reponse)
+        
+        si (data["status"] == "success") {
+            # Utilisation d'une liste temporaire au lieu d'assignation directe
+            soit donnees_site = data["donnees_brutes"]
+            # Stocker les données dans une structure simple
+            imprimer("📊 Données pour", domaine + ":")
+            imprimer("  👥 Visites:", utils.formater_taille_octets(donnees_site["visits"]))
+            imprimer("  📄 Pages/visite:", donnees_site["pages_per_visit"])
+            imprimer("  📉 Taux rebond:", utils.formater_pourcentage(donnees_site["bounce_rate"] * 100, 100))
+            imprimer()
+        }
+    }
+    
+    retourner {"status": "completed"}
+}
+
+soit sites_comparaison = ["x.com", "github.com"]
+soit comp = comparer_sites(client_similarweb, sites_comparaison)
+

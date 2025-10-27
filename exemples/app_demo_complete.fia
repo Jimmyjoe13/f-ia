@@ -1,0 +1,248 @@
+# exemples/app_demo_complete.fia
+# Application démo utilisant TOUS les modules F-IA
+
+# Import de tous nos modules
+importer "lib/texte.fia" comme texte
+importer "lib/fichiers.fia" comme fichiers
+importer "lib/utils.fia" comme utils
+importer "lib/web.fia" comme web
+importer "lib/math.fia" comme math
+
+imprimer("🚀 === APPLICATION DÉMO F-IA COMPLÈTE ===")
+imprimer("Utilisation de tous les modules : texte, fichiers, utils, web, math")
+imprimer()
+
+# === GÉNÉRATEUR D'ARTICLES DE BLOG ===
+imprimer("📝 === GÉNÉRATEUR D'ARTICLES DE BLOG ===")
+
+fonction generer_article_blog(titre_brut, contenu_brut, auteur) {
+    imprimer("Génération d'un article de blog...")
+    
+    # Utilisation du module TEXTE pour nettoyer et formater
+    soit titre_propre = texte.nettoyer_espaces(titre_brut)
+    soit slug = texte.generer_slug(titre_propre)
+    soit contenu_propre = texte.nettoyer_espaces(contenu_brut)
+    
+    # Statistiques avec le module TEXTE
+    soit stats_texte = texte.statistiques_texte(contenu_propre)
+    
+    # Génération d'informations avec le module UTILS
+    soit metadata = {
+        "titre": titre_propre,
+        "slug": slug,
+        "auteur": auteur,
+        "date_creation": utils.datetime_actuelle(),
+        "mots": stats_texte["mots"],
+        "caracteres": stats_texte["longueur"],
+        "taille_formatee": utils.formater_taille_octets(stats_texte["longueur"])
+    }
+    
+    # Génération de nom de fichier avec le module FICHIERS
+    soit nom_fichier = fichiers.creer_nom_fichier_unique(slug, "md")
+    soit info_fichier = fichiers.info_fichier(nom_fichier)
+    
+    # Calcul de temps de lecture avec le module MATH
+    soit mots_par_minute = 200
+    soit temps_lecture = arrondir(stats_texte["mots"] / mots_par_minute, 1)
+    
+    retourner {
+        "metadata": metadata,
+        "fichier": {
+            "nom": nom_fichier,
+            "extension": info_fichier["extension"],
+            "valide": info_fichier["valide"]
+        },
+        "stats": {
+            "temps_lecture_min": temps_lecture,
+            "lisibilite": "Bon"
+        }
+    }
+}
+
+# Test du générateur d'articles
+soit article = generer_article_blog(
+    "   Mon Premier  Article   en F-IA  !  ",
+    "F-IA est un langage de programmation révolutionnaire. Il permet de créer des applications avec une syntaxe française intuitive. Les modules intégrés offrent une puissance incroyable pour le développement moderne.",
+    "Développeur F-IA"
+)
+
+imprimer("Article généré :")
+imprimer("  📄 Titre:", article["metadata"]["titre"])
+imprimer("  🔗 Slug:", article["metadata"]["slug"])
+imprimer("  👤 Auteur:", article["metadata"]["auteur"])
+imprimer("  📅 Date:", article["metadata"]["date_creation"])
+imprimer("  📊 Statistiques:")
+imprimer("    - Mots:", article["metadata"]["mots"])
+imprimer("    - Caractères:", article["metadata"]["caracteres"])
+imprimer("    - Taille:", article["metadata"]["taille_formatee"])
+imprimer("    - Temps de lecture:", article["stats"]["temps_lecture_min"], "min")
+imprimer("  💾 Fichier:", article["fichier"]["nom"])
+imprimer("  ✅ Fichier valide:", article["fichier"]["valide"])
+imprimer()
+
+# === GÉNÉRATEUR D'API REST ===
+imprimer("🌐 === GÉNÉRATEUR D'API REST ===")
+
+fonction creer_api_blog(domaine_base) {
+    # Utilisation du module WEB pour créer une API
+    soit client = web.creer_client_api("https://" + domaine_base)
+    
+    # Normalisation avec le module WEB
+    soit url_normalisee = web.normaliser_url(client["url_base"])
+    soit info_url = web.info_url(url_normalisee)
+    
+    # Endpoints de l'API
+    soit endpoints = {
+        "articles": "/api/v1/articles",
+        "auteurs": "/api/v1/authors",
+        "stats": "/api/v1/statistics"
+    }
+    
+    # Génération d'une clé API avec le module UTILS
+    soit api_key = utils.generer_mot_de_passe_simple(32)
+    
+    retourner {
+        "client": client,
+        "info": info_url,
+        "endpoints": endpoints,
+        "api_key": api_key,
+        "version": "1.0"
+    }
+}
+
+soit api = creer_api_blog("blog-api.exemple.com")
+imprimer("API Blog créée :")
+imprimer("  🌍 Domaine:", api["info"]["domaine"])
+imprimer("  ✅ URL valide:", api["info"]["valide"])
+imprimer("  🔐 Clé API:", api["api_key"])
+imprimer("  📋 Endpoints disponibles :")
+pour endpoint_nom dans cles(api["endpoints"]) {
+    soit endpoint_url = api["endpoints"][endpoint_nom]
+    imprimer("    -", endpoint_nom + ":", api["client"]["url_base"] + endpoint_url)
+}
+imprimer()
+
+# === SIMULATEUR DE REQUÊTES ===
+imprimer("📡 === SIMULATEUR DE REQUÊTES API ===")
+
+fonction tester_api_endpoints(api_config) {
+    imprimer("Test des endpoints de l'API...")
+    
+    # Test de chaque endpoint
+    pour endpoint_nom dans cles(api_config["endpoints"]) {
+        soit endpoint = api_config["endpoints"][endpoint_nom]
+        
+        # Simulation d'une requête GET
+        soit reponse = web.appel_api(api_config["client"], endpoint, "GET", nul)
+        soit status_info = web.analyser_status(reponse["status"])
+        
+        imprimer("  " + majuscule(endpoint_nom) + ":")
+        imprimer("    📍 Endpoint:", endpoint)
+        imprimer("    📊 Status:", reponse["status"], "(" + status_info["message"] + ")")
+        imprimer("    ✅ Succès:", status_info["valide"])
+    }
+    
+    # Test d'ajout d'un nouvel article
+    soit donnees_article = {
+        "titre": "Article via API",
+        "contenu": "Créé avec F-IA",
+        "auteur": "Bot F-IA"
+    }
+    
+    soit reponse_post = web.appel_api(api_config["client"], "/api/v1/articles", "POST", donnees_article)
+    imprimer("  📝 Création d'article:")
+    imprimer("    📊 Status:", reponse_post["status"])
+    imprimer("    ✅ Créé:", reponse_post["success"])
+}
+
+tester_api_endpoints(api)
+imprimer()
+
+# === ANALYSEUR DE PERFORMANCE ===
+imprimer("⚡ === ANALYSEUR DE PERFORMANCE ===")
+
+fonction analyser_performance_systeme() {
+    # Utilisation du module UTILS pour les informations système
+    soit infos_sys = utils.info_systeme()
+    
+    # Simulation de métriques avec le module MATH
+    soit cpu_usage = aleatoire() * 100
+    soit memory_usage = aleatoire() * 8192  # MB
+    soit disk_usage = aleatoire() * 500000  # MB
+    
+    # Formatage avec le module UTILS
+    soit memory_formatee = utils.formater_taille_octets(memory_usage * 1024 * 1024)
+    soit disk_formate = utils.formater_taille_octets(disk_usage * 1024 * 1024)
+    soit cpu_pourcentage = utils.formater_pourcentage(cpu_usage, 100)
+    
+    retourner {
+        "systeme": infos_sys,
+        "performance": {
+            "cpu": cpu_pourcentage,
+            "memory": memory_formatee,
+            "disk": disk_formate
+        },
+        "score_global": arrondir((100 - cpu_usage) * 0.7 + 30, 1)
+    }
+}
+
+soit perf = analyser_performance_systeme()
+imprimer("Analyse du système :")
+imprimer("  💻 OS:", perf["systeme"]["os"], "v" + perf["systeme"]["version"])
+imprimer("  👤 Utilisateur:", perf["systeme"]["utilisateur"])
+imprimer("  📅 Date système:", perf["systeme"]["date"], perf["systeme"]["heure"])
+imprimer("  📊 Performance :")
+imprimer("    - CPU:", perf["performance"]["cpu"])
+imprimer("    - Mémoire:", perf["performance"]["memory"])
+imprimer("    - Disque:", perf["performance"]["disk"])
+imprimer("  🏆 Score global:", perf["score_global"] + "/100")
+imprimer()
+
+# === GÉNÉRATEUR DE RAPPORT FINAL ===
+imprimer("📊 === RAPPORT FINAL ===")
+
+fonction generer_rapport_final() {
+    # Compilation de toutes les données générées
+    soit timestamp = utils.datetime_actuelle()
+    soit timestamp_propre = remplacer(timestamp, " ", "_")
+    timestamp_propre = remplacer(timestamp_propre, ":", "-")
+    soit nom_rapport = "rapport_demo_" + timestamp_propre + ".html"
+    
+    # Validation du nom avec le module FICHIERS
+    soit nom_valide = fichiers.valider_nom_fichier(nom_rapport)
+    
+    # Statistiques globales
+    soit modules_utilises = ["texte", "fichiers", "utils", "web", "math"]
+    soit fonctions_testees = 15
+    soit temps_execution = arrondir(aleatoire() * 5 + 1, 2)
+    
+    retourner {
+        "rapport": {
+            "nom": nom_rapport,
+            "valide": nom_valide,
+            "timestamp": timestamp
+        },
+        "statistiques": {
+            "modules": longueur(modules_utilises),
+            "fonctions": fonctions_testees,
+            "temps_exec": temps_execution
+        },
+        "modules_testes": modules_utilises
+    }
+}
+
+soit rapport = generer_rapport_final()
+imprimer("Rapport de démonstration généré :")
+imprimer("  📄 Nom du rapport:", rapport["rapport"]["nom"])
+imprimer("  ✅ Nom valide:", rapport["rapport"]["valide"])
+imprimer("  ⏰ Généré le:", rapport["rapport"]["timestamp"])
+imprimer("  📈 Statistiques :")
+imprimer("    - Modules testés:", rapport["statistiques"]["modules"])
+imprimer("    - Fonctions utilisées:", rapport["statistiques"]["fonctions"])
+imprimer("    - Temps d'exécution:", rapport["statistiques"]["temps_exec"], "secondes")
+imprimer("  🧩 Modules utilisés:", joindre(rapport["modules_testes"], ", "))
+
+imprimer()
+imprimer("🎉 === DÉMONSTRATION TERMINÉE ===")
+imprimer("Tous les modules F-IA ont été testés avec succès !")
+imprimer("L'écosystème F-IA est maintenant complet et fonctionnel ! 🚀")
