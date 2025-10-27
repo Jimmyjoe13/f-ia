@@ -1,0 +1,59 @@
+# lib/vision.fia - Module Vision par Ordinateur pour F-IA Phase 3
+# Intégration avec OpenCV pour traitement d'images
+
+# === CHARGEMENT D'IMAGES ===
+fonction charger_image(chemin_fichier) {
+    retourner appeler_python_vision("charger_image", [chemin_fichier])
+}
+
+fonction sauvegarder_image(image, chemin_sortie) {
+    retourner appeler_python_vision("sauvegarder_image", [image, chemin_sortie])
+}
+
+# === TRANSFORMATIONS DE BASE ===
+fonction redimensionner(image, largeur, hauteur) {
+    retourner appeler_python_vision("redimensionner", [image, largeur, hauteur])
+}
+
+fonction rotation(image, angle) {
+    retourner appeler_python_vision("rotation", [image, angle])
+}
+
+fonction inverser_couleurs(image) {
+    retourner appeler_python_vision("inverser_couleurs", [image])
+}
+
+# === FILTRES ===
+fonction filtre_flou(image, intensite) {
+    retourner appeler_python_vision("filtre_flou", [image, intensite])
+}
+
+fonction filtre_sepia(image) {
+    retourner appeler_python_vision("filtre_sepia", [image])
+}
+
+fonction niveau_gris(image) {
+    retourner appeler_python_vision("niveau_gris", [image])
+}
+
+# === DÉTECTION ===
+fonction detecter_contours(image) {
+    retourner appeler_python_vision("detecter_contours", [image])
+}
+
+fonction detecter_visages(image) {
+    retourner appeler_python_vision("detecter_visages", [image])
+}
+
+# === ANALYSE ===
+fonction dimensions_image(image) {
+    retourner appeler_python_vision("dimensions", [image])
+}
+
+fonction histogramme_couleurs(image) {
+    retourner appeler_python_vision("histogramme", [image])
+}
+
+fonction luminosite_moyenne(image) {
+    retourner appeler_python_vision("luminosite_moyenne", [image])
+}

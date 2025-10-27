@@ -1,0 +1,97 @@
+# test_ml_basic.fia - Test basique du nouveau module ML
+importer "lib/ml.fia" comme ml
+
+imprimer("🤖 === TEST MODULE MACHINE LEARNING F-IA ===")
+imprimer()
+
+# Test 1: Création de modèles
+imprimer("📊 Test 1: Création des modèles ML")
+soit rf_model = ml.RandomForestClassifier(50, 10)
+imprimer("✅ Random Forest créé:", rf_model)
+
+soit svm_model = ml.SVM("linear", 1.0)
+imprimer("✅ SVM créé:", svm_model)
+
+soit knn_model = ml.KNNClassifier(3)
+imprimer("✅ KNN créé:", knn_model)
+
+soit lr_model = ml.LinearRegression()
+imprimer("✅ Régression linéaire créée:", lr_model)
+
+imprimer()
+
+# Test 2: Données synthétiques simples
+imprimer("📈 Test 2: Création de données synthétiques")
+soit X_train = [
+    [1.0, 2.0], [2.0, 3.0], [3.0, 1.0], [4.0, 5.0],
+    [5.0, 4.0], [6.0, 2.0], [7.0, 8.0], [8.0, 6.0]
+]
+soit y_train = [0, 0, 0, 1, 1, 0, 1, 1]
+
+imprimer("Données d'entraînement X:", longueur(X_train), "échantillons")
+imprimer("Étiquettes y:", longueur(y_train), "classes")
+imprimer()
+
+# Test 3: Entraînement
+imprimer("🎯 Test 3: Entraînement des modèles")
+soit resultat_rf = ml.entrainer(rf_model, X_train, y_train)
+imprimer("Random Forest:", resultat_rf)
+
+soit resultat_svm = ml.entrainer(svm_model, X_train, y_train)
+imprimer("SVM:", resultat_svm)
+
+soit resultat_knn = ml.entrainer(knn_model, X_train, y_train)
+imprimer("KNN:", resultat_knn)
+imprimer()
+
+# Test 4: Prédictions
+imprimer("🔮 Test 4: Prédictions")
+soit X_test = [[2.5, 2.5], [6.5, 7.0], [1.5, 1.0]]
+
+soit pred_rf = ml.predire(rf_model, X_test)
+imprimer("Prédictions Random Forest:", pred_rf)
+
+soit pred_svm = ml.predire(svm_model, X_test)
+imprimer("Prédictions SVM:", pred_svm)
+
+soit pred_knn = ml.predire(knn_model, X_test)
+imprimer("Prédictions KNN:", pred_knn)
+imprimer()
+
+# Test 5: Évaluation
+imprimer("📊 Test 5: Évaluation des modèles")
+soit score_rf = ml.evaluer_modele(rf_model, X_train, y_train, "accuracy")
+imprimer("Précision Random Forest:", arrondir(score_rf, 3))
+
+soit score_svm = ml.evaluer_modele(svm_model, X_train, y_train, "accuracy")
+imprimer("Précision SVM:", arrondir(score_svm, 3))
+
+soit score_knn = ml.evaluer_modele(knn_model, X_train, y_train, "accuracy")
+imprimer("Précision KNN:", arrondir(score_knn, 3))
+imprimer()
+
+# Test 6: Preprocessing
+imprimer("⚙️  Test 6: Preprocessing des données")
+soit X_std = ml.standardiser_donnees(X_train)
+imprimer("✅ Données standardisées (premières lignes):")
+imprimer("  ", X_std[0])
+imprimer("  ", X_std[1])
+
+soit X_norm = ml.normaliser_donnees(X_train)
+imprimer("✅ Données normalisées (premières lignes):")
+imprimer("  ", X_norm[0])
+imprimer("  ", X_norm[1])
+imprimer()
+
+# Test 7: Clustering
+imprimer("🎯 Test 7: Clustering non supervisé")
+soit kmeans_model = ml.KMeans(2, 100)
+soit resultat_kmeans = ml.entrainer(kmeans_model, X_train, [0, 0, 0, 0, 0, 0, 0, 0])
+imprimer("K-Means entraîné:", resultat_kmeans)
+
+soit clusters = ml.predire(kmeans_model, X_train)
+imprimer("Clusters assignés:", clusters)
+imprimer()
+
+imprimer("🎉 === TESTS ML TERMINÉS AVEC SUCCÈS ===")
+imprimer("✨ F-IA Phase 3 - Machine Learning natif opérationnel !")

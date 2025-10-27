@@ -1,0 +1,185 @@
+# demo_ml_complet.fia - Démonstration complète ML avec dataset réaliste
+importer "lib/ml.fia" comme ml
+importer "lib/utils.fia" comme utils
+
+imprimer("🚀 === DÉMONSTRATION ML COMPLÈTE F-IA PHASE 3 ===")
+imprimer("📅 Démarré le:", utils.date_actuelle(), "à", utils.heure_actuelle())
+imprimer()
+
+# === PARTIE 1: CLASSIFICATION MULTI-CLASSE ===
+imprimer("🎯 === CLASSIFICATION: PRÉDICTION DE PRIX IMMOBILIER ===")
+
+# Données réalistes: [surface_m2, nb_chambres, age_annees, distance_centre_km]
+soit donnees_immobilier = [
+    [45, 2, 5, 2.1],    # Classe 0: Prix bas
+    [50, 2, 8, 3.2],    # Classe 0: Prix bas  
+    [55, 2, 12, 4.1],   # Classe 0: Prix bas
+    [48, 2, 6, 2.8],    # Classe 0: Prix bas
+    [75, 3, 3, 1.5],    # Classe 1: Prix moyen
+    [80, 3, 7, 2.0],    # Classe 1: Prix moyen
+    [85, 3, 5, 1.8],    # Classe 1: Prix moyen
+    [78, 3, 9, 2.3],    # Classe 1: Prix moyen
+    [120, 4, 2, 0.8],   # Classe 2: Prix élevé
+    [130, 4, 4, 1.2],   # Classe 2: Prix élevé
+    [125, 4, 3, 1.0],   # Classe 2: Prix élevé
+    [135, 5, 1, 0.5]    # Classe 2: Prix élevé
+]
+
+soit categories_prix = [0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2]
+# 0 = Prix bas, 1 = Prix moyen, 2 = Prix élevé
+
+imprimer("📊 Dataset immobilier:", longueur(donnees_immobilier), "propriétés")
+imprimer("🏷️  Catégories: 0=Bas, 1=Moyen, 2=Élevé")
+imprimer()
+
+# Preprocessing
+imprimer("⚙️  === PREPROCESSING ===")
+soit donnees_std = ml.standardiser_donnees(donnees_immobilier)
+imprimer("✅ Données standardisées")
+
+# Créer et comparer plusieurs modèles
+imprimer("🤖 === CRÉATION ET COMPARAISON DE MODÈLES ===")
+
+soit rf_immobilier = ml.RandomForestClassifier(100, 5)
+soit svm_immobilier = ml.SVM("rbf", 1.0)
+soit knn_immobilier = ml.KNNClassifier(3)
+
+imprimer("✅ 3 modèles créés: Random Forest, SVM, KNN")
+
+# Entraînement
+imprimer("🎯 === ENTRAÎNEMENT ===")
+ml.entrainer(rf_immobilier, donnees_std, categories_prix)
+ml.entrainer(svm_immobilier, donnees_std, categories_prix)
+ml.entrainer(knn_immobilier, donnees_std, categories_prix)
+imprimer("✅ Tous les modèles entraînés")
+
+# Évaluation comparative
+imprimer("📈 === ÉVALUATION COMPARATIVE ===")
+soit score_rf = ml.evaluer_modele(rf_immobilier, donnees_std, categories_prix, "accuracy")
+soit score_svm = ml.evaluer_modele(svm_immobilier, donnees_std, categories_prix, "accuracy")
+soit score_knn = ml.evaluer_modele(knn_immobilier, donnees_std, categories_prix, "accuracy")
+
+imprimer("Random Forest - Précision:", arrondir(score_rf * 100, 1), "%")
+imprimer("SVM - Précision:", arrondir(score_svm * 100, 1), "%")
+imprimer("KNN - Précision:", arrondir(score_knn * 100, 1), "%")
+
+# Déterminer le meilleur modèle
+soit meilleur_score = score_rf
+soit meilleur_modele = rf_immobilier
+soit nom_meilleur = "Random Forest"
+
+si (score_svm > meilleur_score) {
+    meilleur_score = score_svm
+    meilleur_modele = svm_immobilier
+    nom_meilleur = "SVM"
+}
+
+si (score_knn > meilleur_score) {
+    meilleur_score = score_knn
+    meilleur_modele = knn_immobilier
+    nom_meilleur = "KNN"
+}
+
+imprimer("🏆 Meilleur modèle:", nom_meilleur, "avec", arrondir(meilleur_score * 100, 1), "% de précision")
+imprimer()
+
+# Test sur nouveaux biens
+imprimer("🔮 === PRÉDICTIONS SUR NOUVEAUX BIENS ===")
+soit nouveaux_biens = [
+    [60, 2, 10, 3.0],   # Devrait être prix bas
+    [90, 3, 4, 1.7],    # Devrait être prix moyen
+    [140, 5, 2, 0.7]    # Devrait être prix élevé
+]
+
+soit nouveaux_biens_std = ml.standardiser_donnees(nouveaux_biens)
+soit predictions = ml.predire(meilleur_modele, nouveaux_biens_std)
+
+pour i dans [0, 1, 2] {
+    soit bien = nouveaux_biens[i]
+    soit pred = predictions[i]
+    soit categorie = ""
+    
+    si (pred == 0) {
+        categorie = "Prix BAS"
+    } sinon si (pred == 1) {
+        categorie = "Prix MOYEN"  
+    } sinon {
+        categorie = "Prix ÉLEVÉ"
+    }
+    
+    imprimer("Bien", i + 1, ":", bien[0], "m², ", bien[1], "ch, ", bien[2], "ans →", categorie)
+}
+imprimer()
+
+# === PARTIE 2: CLUSTERING ===
+imprimer("🎯 === CLUSTERING: SEGMENTATION AUTOMATIQUE ===")
+
+# Données de comportement client: [age, revenu_k€, nb_achats_mois]
+soit donnees_clients = [
+    [25, 30, 2], [28, 35, 3], [30, 40, 2],     # Jeunes actifs
+    [45, 60, 5], [48, 65, 6], [50, 70, 4],     # Cadres moyens
+    [35, 80, 8], [38, 85, 9], [40, 90, 7],     # Cadres supérieurs
+    [60, 45, 1], [65, 40, 1], [70, 50, 2]      # Seniors
+]
+
+imprimer("👥 Dataset clients:", longueur(donnees_clients), "profils")
+
+# Clustering K-Means
+soit kmeans_clients = ml.KMeans(3, 200)
+soit donnees_clients_std = ml.standardiser_donnees(donnees_clients)
+
+# Pour clustering, on passe des labels factices (K-means est non supervisé)
+soit labels_factices = []
+pour i dans donnees_clients {
+    ajouter(labels_factices, 0)
+}
+
+ml.entrainer(kmeans_clients, donnees_clients_std, labels_factices)
+soit segments = ml.predire(kmeans_clients, donnees_clients_std)
+
+imprimer("🎯 Segmentation automatique en 3 groupes:")
+pour i dans [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] {
+    soit client = donnees_clients[i]
+    soit segment = segments[i]
+    imprimer("Client", i + 1, ": âge", client[0], ", revenu", client[1], "k€, achats", client[2], "→ Segment", segment)
+}
+imprimer()
+
+# === PARTIE 3: RÉGRESSION ===
+imprimer("📈 === RÉGRESSION: PRÉDICTION CONTINUE ===")
+
+# Données de ventes: [budget_marketing_k€, nb_vendeurs, satisfaction_client_%]
+soit donnees_ventes_X = [
+    [10, 2, 85], [15, 3, 90], [20, 4, 88], [25, 5, 92],
+    [30, 6, 95], [35, 7, 89], [40, 8, 94], [45, 9, 96]
+]
+
+# Chiffre d'affaires en k€
+soit chiffre_affaires = [120, 180, 240, 300, 380, 420, 500, 580]
+
+soit reg_model = ml.RandomForestRegressor(50, 8)
+soit donnees_ventes_std = ml.standardiser_donnees(donnees_ventes_X)
+
+ml.entrainer(reg_model, donnees_ventes_std, chiffre_affaires)
+
+# Test prédiction
+soit nouveau_scenario = [[28, 5, 91]]
+soit scenario_std = ml.standardiser_donnees(nouveau_scenario)
+soit ca_predit = ml.predire(reg_model, scenario_std)
+
+imprimer("Prédiction CA avec budget 28k€, 5 vendeurs, 91% satisfaction:")
+imprimer("→ Chiffre d'affaires estimé:", arrondir(ca_predit[0], 0), "k€")
+imprimer()
+
+# === VALIDATION CROISÉE ===
+imprimer("✅ === VALIDATION CROISÉE ===")
+soit validation = ml.validation_croisee(meilleur_modele, donnees_std, categories_prix, 3)
+imprimer("Validation croisée (3 plis):")
+imprimer("  Scores individuels:", validation["scores"])
+imprimer("  Précision moyenne:", arrondir(validation["moyenne"] * 100, 1), "%")
+imprimer("  Écart-type:", arrondir(validation["ecart_type"] * 100, 1), "%")
+imprimer()
+
+imprimer("🎉 === DÉMONSTRATION ML COMPLÈTE TERMINÉE ===")
+imprimer("✨ F-IA Phase 3 - Écosystème ML industriel opérationnel !")
+imprimer("📊 Classification, régression, clustering et validation: ✅")

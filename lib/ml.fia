@@ -1,0 +1,81 @@
+# lib/ml.fia - Module Machine Learning pour F-IA Phase 3
+# Intégration native avec scikit-learn, pandas, numpy
+
+# === CHARGEMENT DE DONNÉES ===
+fonction charger_csv(chemin_fichier) {
+    retourner appeler_python_ml("charger_csv", [chemin_fichier])
+}
+
+fonction charger_json(chemin_fichier) {
+    retourner appeler_python_ml("charger_json", [chemin_fichier])
+}
+
+fonction separer_features_target(dataset, nom_colonne_target) {
+    retourner appeler_python_ml("separer_features_target", [dataset, nom_colonne_target])
+}
+
+# === PREPROCESSING ===
+fonction standardiser_donnees(X) {
+    retourner appeler_python_ml("standardiser", [X])
+}
+
+fonction normaliser_donnees(X) {
+    retourner appeler_python_ml("normaliser", [X])
+}
+
+# === MODÈLES DE CLASSIFICATION ===
+fonction RandomForestClassifier(n_arbres, profondeur_max) {
+    retourner appeler_python_ml("creer_random_forest", [n_arbres, profondeur_max])
+}
+
+fonction SVM(kernel, C) {
+    retourner appeler_python_ml("creer_svm", [kernel, C])
+}
+
+fonction KNNClassifier(k) {
+    retourner appeler_python_ml("creer_knn", [k])
+}
+
+# === MODÈLES DE RÉGRESSION ===
+fonction LinearRegression() {
+    retourner appeler_python_ml("creer_regression_lineaire", [])
+}
+
+fonction RandomForestRegressor(n_arbres, profondeur_max) {
+    retourner appeler_python_ml("creer_random_forest_reg", [n_arbres, profondeur_max])
+}
+
+# === ENTRAÎNEMENT ET ÉVALUATION ===
+fonction entrainer(modele, X, y) {
+    retourner appeler_python_ml("entrainer_modele", [modele, X, y])
+}
+
+fonction predire(modele, X) {
+    retourner appeler_python_ml("predire", [modele, X])
+}
+
+fonction evaluer_modele(modele, X, y, metrique) {
+    retourner appeler_python_ml("evaluer", [modele, X, y, metrique])
+}
+
+fonction validation_croisee(modele, X, y, nb_plis) {
+    retourner appeler_python_ml("validation_croisee", [modele, X, y, nb_plis])
+}
+
+# === CLUSTERING ===
+fonction KMeans(k, max_iter) {
+    retourner appeler_python_ml("creer_kmeans", [k, max_iter])
+}
+
+fonction clustering_hierarchique(n_clusters) {
+    retourner appeler_python_ml("creer_clustering_hier", [n_clusters])
+}
+
+# === MÉTRIQUES ===
+fonction matrice_confusion(y_true, y_pred) {
+    retourner appeler_python_ml("matrice_confusion", [y_true, y_pred])
+}
+
+fonction rapport_classification(y_true, y_pred) {
+    retourner appeler_python_ml("rapport_classification", [y_true, y_pred])
+}

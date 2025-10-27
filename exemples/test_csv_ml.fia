@@ -1,0 +1,63 @@
+# test_csv_ml.fia - Test du chargement de données CSV avec ML
+importer "lib/ml.fia" comme ml
+
+imprimer("🌸 === TEST CHARGEMENT DONNÉES IRIS ===")
+imprimer()
+
+# Test chargement CSV
+soit dataset = ml.charger_csv("exemples/iris_simple.csv")
+imprimer("📊 Dataset chargé:", longueur(dataset), "échantillons")
+imprimer("Exemple d'échantillon:", dataset[0])
+imprimer()
+
+# Séparation features/target
+soit donnees = ml.separer_features_target(dataset, "species")
+soit X = donnees["X"]
+soit y = donnees["y"]
+
+imprimer("✅ Features (X):", longueur(X), "échantillons,", longueur(X[0]), "caractéristiques")
+imprimer("✅ Target (y):", longueur(y), "étiquettes")
+imprimer("Première ligne X:", X[0])
+imprimer("Première étiquette y:", y[0])
+imprimer()
+
+# Preprocessing
+soit X_std = ml.standardiser_donnees(X)
+imprimer("⚙️ Données standardisées:")
+imprimer("Avant:", X[0])
+imprimer("Après:", X_std[0])
+imprimer()
+
+# Classification
+imprimer("🤖 === TEST CLASSIFICATION SUR IRIS ===")
+soit modele_iris = ml.RandomForestClassifier(100, nul)
+ml.entrainer(modele_iris, X_std, y)
+
+# Évaluation
+soit precision = ml.evaluer_modele(modele_iris, X_std, y, "accuracy")
+imprimer("🎯 Précision Random Forest:", arrondir(precision * 100, 1), "%")
+
+# Validation croisée
+soit validation = ml.validation_croisee(modele_iris, X_std, y, 3)
+imprimer("✅ Validation croisée:")
+imprimer("  Précision moyenne:", arrondir(validation["moyenne"] * 100, 1), "%")
+imprimer("  Écart-type:", arrondir(validation["ecart_type"] * 100, 1), "%")
+imprimer()
+
+# Test prédiction
+soit nouvelles_fleurs = [
+    [5.0, 3.0, 1.5, 0.3],  # Probablement setosa
+    [6.0, 3.0, 4.5, 1.5],  # Probablement versicolor
+    [6.5, 3.0, 5.5, 2.0]   # Probablement virginica
+]
+
+soit nouvelles_std = ml.standardiser_donnees(nouvelles_fleurs)
+soit predictions = ml.predire(modele_iris, nouvelles_std)
+
+imprimer("🔮 Prédictions sur nouvelles fleurs:")
+pour i dans [0, 1, 2] {
+    imprimer("Fleur", i + 1, ":", nouvelles_fleurs[i], "→", predictions[i])
+}
+imprimer()
+
+imprimer("🎉 === TEST CSV + ML TERMINÉ AVEC SUCCÈS ===")

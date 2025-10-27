@@ -392,8 +392,17 @@ class VisiteurInterpretation:
             # C'est un appel de type module.fonction()
             fonction_module = self.executer(appel.nom_fonction)
             args = [self.executer(arg) for arg in appel.arguments]
-            args_convertis = [self._convertir_en_python(arg) for arg in args]
-            
+    
+            # CORRECTION: Conversion complète des arguments pour les modules ML
+            args_convertis = []
+            for arg in args:
+                if hasattr(arg, 'nom'):  # Si c'est un identifiant (comme un ID de modèle)
+                    args_convertis.append(arg.nom)
+                elif hasattr(arg, 'valeur'):  # Si c'est un littéral
+                    args_convertis.append(self._convertir_en_python(arg.valeur))
+                else:
+                    args_convertis.append(self._convertir_en_python(arg))
+    
             if callable(fonction_module):
                 try:
                     return fonction_module(*args_convertis)
@@ -401,7 +410,7 @@ class VisiteurInterpretation:
                     raise RuntimeError(f"Erreur lors de l'appel de fonction de module: {e}")
             else:
                 raise RuntimeError("L'élément n'est pas une fonction")
-        
+
         # Appel normal
         if isinstance(appel.nom_fonction, str):
             nom_fonction = appel.nom_fonction
@@ -567,9 +576,13 @@ class VisiteurInterpretation:
 
     def _convertir_en_python(self, valeur):
         """Convertit récursivement les objets F-IA en types Python natifs."""
-        from fia_ast import Littéral
-        
-        if isinstance(valeur, Littéral):
+        from fia_ast import Littéral, Identifiant
+    
+        # CORRECTION: Gestion des identifiants F-IA
+        if isinstance(valeur, Identifiant):
+            # Si c'est un identifiant, récupérer sa valeur dans le contexte
+            return self._get_variable(valeur.nom)
+        elif isinstance(valeur, Littéral):
             return self._convertir_en_python(valeur.valeur)
         elif isinstance(valeur, list):
             return [self._convertir_en_python(item) for item in valeur]

@@ -1,0 +1,19 @@
+# test_ml_simple.fia - Test très simple pour débugger
+importer "lib/ml.fia" comme ml
+
+imprimer("🤖 === TEST ML SIMPLE ===")
+
+# Test création modèle
+soit modele = ml.RandomForestClassifier(10, 5)
+imprimer("✅ Modèle créé:", modele)
+
+# Données très simples
+soit X = [[1, 2], [3, 4], [5, 6], [7, 8]]
+soit y = [0, 0, 1, 1]
+
+imprimer("📊 Données:", longueur(X), "échantillons")
+
+# Test direct avec l'ID comme chaîne
+imprimer("🎯 Test entraînement...")
+soit resultat = appeler_python_ml("entrainer_modele", [modele, X, y])
+imprimer("Résultat:", resultat)

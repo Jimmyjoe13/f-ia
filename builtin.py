@@ -312,6 +312,17 @@ def _safe_import_ai():
 # Charger les fonctions IA
 _ai_functions = _safe_import_ai()
 
+# === INTERFACE MACHINE LEARNING ===
+def _appeler_python_ml(nom_fonction, args):
+    """Interface entre F-IA et le backend ML Python"""
+    try:
+        from ml_backend import _appeler_python_ml
+        return _appeler_python_ml(nom_fonction, args)
+    except ImportError:
+        raise RuntimeError("Backend ML non disponible. Vérifiez l'installation des dépendances.")
+    except Exception as e:
+        raise RuntimeError(f"Erreur ML: {e}")
+
 # Table des fonctions intégrées exposées au langage F-IA
 FONCTIONS_INTEGREES = {
     # Fonctions de base
@@ -356,6 +367,9 @@ FONCTIONS_INTEGREES = {
     # I/O utilisateur
     "lire": _lire,
     "arreter": _arreter,
+
+    # === INTERFACE MACHINE LEARNING ===
+    "appeler_python_ml": _appeler_python_ml,
 
     # === FONCTIONS IA INTÉGRÉES ===
     "appeler_ia": _ai_functions['appeler_ia'],

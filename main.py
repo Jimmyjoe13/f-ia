@@ -61,6 +61,9 @@ def afficher_aide():
     print("Exemples:")
     print("  python main.py exemples/test_modules.fia")
     print("  python main.py exemples/chatbot_simple.fia")
+    print(" python main.py exemples/test_ml_basic.fia")
+    print(" python main.py exemples/test_csv_ml.fia")
+    print(" python main.py exemples/demo_ml_complet.fia")
     print()
     print("🆕 Nouveau système de modules:")
     print('  importer "lib/math.fia" comme math')
@@ -70,7 +73,7 @@ def afficher_aide():
 
 def main():
     """Point d'entrée principal"""
-    print("🤖 F-IA v1.3 - Système de Modules Activé")
+    print("🤖 F-IA v2.0 - Phase 3 ML native activée")
     
     # Pas d'arguments = mode REPL
     if len(sys.argv) == 1:
