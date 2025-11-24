@@ -371,6 +371,9 @@ FONCTIONS_INTEGREES = {
     # === INTERFACE MACHINE LEARNING ===
     "appeler_python_ml": _appeler_python_ml,
 
+    # === INTERFACE VISION PAR ORDINATEUR ===
+    "appeler_python_vision": lambda nom, args: __import__("vision_backend")._appeler_python_vision(nom, args),
+
     # === FONCTIONS IA INTÉGRÉES ===
     "appeler_ia": _ai_functions['appeler_ia'],
     "lister_plateformes_ia": _ai_functions['lister_plateformes_ia'],
